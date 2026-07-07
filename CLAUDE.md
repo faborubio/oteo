@@ -92,6 +92,19 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
 - **Fase 3 — Operación:** sync quincenal, página de salud, backups probados, guiones.
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
 
+## Cierre de fase — Definition of Done (obligatorio)
+Ninguna fase se da por cerrada sin completar, en orden:
+1. **Ronda crítica (vista de halcón)** — releer el código de la fase cazando bugs y casos
+   borde; corregir los de riesgo real, documentar los diferidos como `AUD-NNN`.
+2. **Casos borde → `docs/CASES.md`** — registrar URIs/señales raros (sobre todo tras syncs
+   reales) antes de tocar las listas de `config/oteo.yml`.
+3. **Deuda → `docs/AUDIT.md`** — todo trade-off aceptado con trabajo futuro obtiene su `AUD-NNN`.
+4. **Incidentes → `docs/TROUBLESHOOTING.md`** — toda falla resuelta durante la fase.
+5. **Contexto → este `CLAUDE.md` + `README.md`** — roadmap, conteo de specs y comandos, en
+   sincronía con el resto de los `.md`.
+6. **Verde** — `rspec` + `rubocop` + `brakeman` + `bundler-audit` limpios.
+7. **Commit + push.**
+
 ## Reglas del repo (SAD §14)
 1. El SAD cambia **solo por ADR nuevo o enmienda versionada** (§16), nunca ediciones silenciosas.
 2. Todo trade-off "aceptado" que implique trabajo futuro **debe** tener su `AUD-NNN` en AUDIT.md.
