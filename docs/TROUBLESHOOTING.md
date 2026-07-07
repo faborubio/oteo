@@ -21,6 +21,15 @@ verificar que ese archivo existe. Consecuencia permanente: **usar siempre `bundl
 
 ---
 
+## Vistas / assets
+
+### `LoadError: cannot load such file -- pagy/extras/overflow` al arrancar
+**Causa:** Pagy en este repo es la **v43** (rewrite moderno), no la 9.x de la mayoría de tutoriales.
+En v43 no existen los `extras/` y `Pagy::DEFAULT` está **congelado** (no se puede mutar en un initializer).
+**Fix:** no usar initializer. API v43: `include Pagy::Method` en ApplicationController;
+`@pagy, @x = pagy(scope, limit: 30)`; en la vista `<%== @pagy.series_nav %>` (no `pagy_nav`).
+No incluir `Pagy::Frontend` en helpers. FleetPilot usa la misma versión: mirar ahí si hay dudas.
+
 ## Base de datos
 
 ### `ActiveRecord::PendingMigrationError` al correr specs

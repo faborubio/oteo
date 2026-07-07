@@ -1,0 +1,13 @@
+<%= form_with model: [ business, contact_event ], id: "contact_event_form", class: "space-y-2" do |f| %>
+  <div class="flex gap-2">
+    <%= f.select :event_type,
+          options_for_select([ [ "Nota", "nota" ], [ "Llamada", "llamada" ], [ "Visita", "visita" ], [ "WhatsApp", "whatsapp" ], [ "Email", "email" ] ], "nota"),
+          {}, class: "rounded border-gray-300 text-sm" %>
+    <%= f.select :product,
+          options_for_select([ [ "—", "" ], [ "Web", "web" ], [ "POS", "pos" ], [ "Ambos", "ambos" ] ]),
+          {}, class: "rounded border-gray-300 text-sm" %>
+  </div>
+  <%= f.text_area :body, rows: 2, placeholder: "¿Qué pasó en el contacto?",
+        class: "w-full rounded border-gray-300 text-sm" %>
+  <%= f.submit "Registrar", class: "bg-emerald-600 text-white text-sm rounded px-4 py-1.5 hover:bg-emerald-700" %>
+<% end %>

@@ -1,0 +1,35 @@
+<% content_for :title, "Leads — Oteo" %>
+
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-xl font-bold">Leads</h1>
+  <div class="text-sm text-gray-500"><%= pluralize(@pagy.count, "negocio") %></div>
+</div>
+
+<%# Carriles: con reputación (ranking real) vs. nuevos/sin reseñas (ADR-008) %>
+<div class="flex gap-2 mb-4">
+  <%= link_to "Con reputación", businesses_path(request.query_parameters.except("lane")),
+        class: lane_tab_class(params[:lane] != "nuevos") %>
+  <%= link_to "Nuevos / sin reputación", businesses_path(request.query_parameters.merge(lane: "nuevos")),
+        class: lane_tab_class(params[:lane] == "nuevos") %>
+</div>
+
+<%= form_with url: businesses_path, method: :get, data: { turbo_frame: "leads" },
+      class: "grid grid-cols-2 md:grid-cols-5 gap-3 mb-4 bg-white p-4 rounded-lg border border-gray-200" do |f| %>
+  <%= hidden_field_tag :lane, params[:lane] %>
+  <%= f.select :comuna_id, options_from_collection_for_select(@comunas, :id, :name, params[:comuna_id]),
+        { include_blank: "Todas las comunas" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
+  <%= f.select :presence,
+        options_for_select([ [ "Sin presencia", "sin_presencia" ], [ "Solo redes", "solo_redes" ], [ "Web propia", "web_propia" ], [ "Web caída", "web_caida" ] ], params[:presence]),
+        { include_blank: "Toda presencia" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
+  <%= f.select :rubro_id, options_from_collection_for_select(@rubros, :id, :label, params[:rubro_id]),
+        { include_blank: "Todos los rubros" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
+  <label class="flex items-center gap-2 text-sm text-gray-700">
+    <%= f.check_box :pos_candidate, { checked: params[:pos_candidate] == "1", onchange: "this.form.requestSubmit()" }, "1", "0" %>
+    Candidato POS
+  </label>
+  <%= link_to "Limpiar", businesses_path(lane: params[:lane]), class: "text-sm text-gray-500 self-center hover:text-gray-800" %>
+<% end %>
+
+<%= turbo_frame_tag "leads" do %>
+  <%= render "table" %>
+<% end %>

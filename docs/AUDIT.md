@@ -86,3 +86,21 @@ El sesgo de prominencia (los mejores leads quedan fuera) no está corregido.
 **Plan de pago (Fase 1.5 / donde el corte se detecte):** cuando una combinación devuelva 60,
 subdividir la consulta por barrio o sinónimo del rubro, registrando cada sub-consulta en
 `sync_runs`. El `SyncJob` ya acepta `query:` explícito para esto.
+
+### AUD-010 — Mapa (tercera vista) NO implementado: bloqueado por gate legal (ADR-007 / AUD-002) 🔴
+**Contexto:** Fase 2 entrega dos de las tres vistas (tabla y kanban). El **mapa Leaflet queda
+fuera a propósito**: plotear datos de Places sobre un mapa no-Google puede violar los ToS
+("No Use With Non-Google Maps"). Escribirlo hoy sería construir sobre un gate sin verificar.
+**Depende de:** AUD-002. Cuando se resuelva:
+- Si la cláusula sigue activa → Plan B: Google Maps JS API, o Leaflet solo con datos manuales.
+- El `BusinessesController#show` ya expone lat/lng y hay un link "Cómo llegar" a Google Maps
+  (un link normal, no un embed: eso sí es ToS-safe).
+**Plan de pago:** implementar la vista mapa en un Stimulus controller aislado una vez despejado
+el gate, sin tocar el resto (la coordenada ya está en el modelo).
+
+### AUD-011 — Deploy con Kamal no ejecutado 🔴
+**Contexto:** Fase 2 según el SAD termina con "deploy Kamal y salir a terreno". El deploy real
+necesita el VPS, secrets (`RAILS_MASTER_KEY`, registry) y los gates legales despejados. La
+config base de Kamal existe (`config/deploy.yml`, `.kamal/secrets`) pero no se ha desplegado.
+**Plan de pago:** configurar `config/deploy.yml` (host, registry, dominio), cargar secrets y
+correr `kamal setup`; probar el `pg_dump` de backup (ADR-010) una vez.

@@ -40,7 +40,8 @@ OTEO_ADMIN_EMAIL=tu@mail OTEO_ADMIN_PASSWORD=secreto bin/rails db:seed
 | Consola | `bin/rails console` |
 | Migrar | `bin/rails db:migrate` |
 | Seed (idempotente) | `bin/rails db:seed` |
-| Deploy | `kamal deploy` (Fase 2+) |
+| Datos demo (dev) | `bin/rails oteo:demo_data` |
+| Deploy | `kamal deploy` (pendiente, AUD-011) |
 
 ## Configuración de dominio
 - `config/oteo.yml` → dominios sociales, agregadores, acortadores (ADR-003), pesos del
@@ -87,8 +88,13 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   **Pendiente:** correr el primer sync REAL —
   Curicó × restaurantes— y auditar 20 resultados a mano (necesita `GOOGLE_PLACES_API_KEY`
   y los gates de AUD-001/003 verificados). Documentar hallazgos en CASES.md.
-- **Fase 2 — Las tres vistas: siguiente.** Tabla filtrable, ficha + captura móvil de `pos_status`,
-  kanban (Turbo Streams + SortableJS), mapa Leaflet. Deploy Kamal y salir a terreno.
+- **Fase 2 — Las tres vistas: 🟡 PARCIAL.** ✅ Tabla filtrable (comuna/presencia/pos/rubro,
+  carriles reputación vs. nuevos, Turbo Frame + Pagy), ✅ ficha con guion de venta por estado
+  + captura móvil de `pos_status` (Turbo Stream) + historial de `contact_events`, ✅ kanban
+  drag&drop (SortableJS via importmap, cada movimiento deja evento). 113 specs verde.
+  ⚠️ **Diferidos:** mapa Leaflet (**bloqueado por gate AUD-002**, ver AUD-010) y deploy Kamal
+  (AUD-011). El resto de la vista mapa está listo para enchufarse cuando el gate se despeje.
+  Datos para revisar la UI sin API: `rake oteo:demo_data` (solo dev).
 - **Fase 3 — Operación:** sync quincenal, página de salud, backups probados, guiones.
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
 

@@ -1,0 +1,7 @@
+<%# Reemplaza el panel POS y prepende el evento al historial, sin recargar la página (ADR-004). %>
+<%= turbo_stream.replace "pos_panel" do %>
+  <%= render "pos_panel", business: @business %>
+<% end %>
+<%= turbo_stream.prepend "contact_events" do %>
+  <%= render partial: "contact_events/event", object: @business.contact_events.first, as: :event %>
+<% end %>

@@ -1,0 +1,34 @@
+<% content_for :title, "Kanban — Oteo" %>
+
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-xl font-bold">Pipeline</h1>
+  <p class="text-xs text-gray-400">Arrastra las tarjetas entre columnas</p>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3"
+     data-controller="kanban"
+     data-kanban-url-value="<%= kanban_business_path("__ID__") %>">
+  <% @stages.each do |stage| %>
+    <div class="bg-gray-100 rounded-lg p-2">
+      <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide px-1 mb-2">
+        <%= stage_label(stage) %>
+        <span class="text-gray-400">(<%= (@cards[stage] || []).size %>)</span>
+      </h2>
+
+      <div class="space-y-2 min-h-[3rem]"
+           data-kanban-target="column"
+           data-stage="<%= stage %>">
+        <% (@cards[stage] || []).each do |business| %>
+          <div class="bg-white rounded-md border border-gray-200 p-3 shadow-sm cursor-grab"
+               data-id="<%= business.id %>">
+            <%= link_to business.name, business_path(business), class: "text-sm font-medium text-gray-900 hover:text-emerald-700", data: { turbo_frame: "_top" } %>
+            <div class="mt-1 flex items-center justify-between">
+              <span class="text-xs text-gray-500"><%= business.comuna.name %></span>
+              <span class="text-xs font-semibold text-emerald-700 tabular-nums"><%= lead_score_display(business.lead_score) %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

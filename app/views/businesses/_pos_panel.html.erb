@@ -1,0 +1,28 @@
+<%# Captura móvil de pos_status en 1 tap (ADR-004). id estable para reemplazo por Turbo Stream. %>
+<div id="pos_panel" class="bg-white rounded-lg border border-gray-200 p-5">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">POS</h2>
+    <% if business.pos_candidate %>
+      <span class="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Candidato</span>
+    <% end %>
+  </div>
+
+  <p class="text-xs text-gray-500 mb-2">
+    Estado actual: <strong><%= pos_status_label(business.pos_status) %></strong>
+    <%= "· #{business.pos_vendor}" if business.pos_vendor.present? %>
+  </p>
+
+  <%= form_with model: business, url: pos_status_business_path(business), method: :patch, class: "space-y-2" do |f| %>
+    <div class="grid grid-cols-1 gap-1">
+      <% Business.pos_statuses.each_key do |status| %>
+        <%= f.button status, type: :submit, name: "business[pos_status]", value: status,
+              class: "text-left px-3 py-2 rounded border text-sm #{business.pos_status == status ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : 'border-gray-200 hover:bg-gray-50'}" do %>
+          <%= pos_status_label(status) %>
+        <% end %>
+      <% end %>
+    </div>
+    <%= f.text_field :pos_vendor, value: business.pos_vendor, placeholder: "¿Qué sistema? (Bsale, Toteat…)",
+          class: "w-full rounded border-gray-300 text-sm" %>
+    <%= f.submit "Guardar sistema", class: "w-full bg-gray-800 text-white text-sm rounded py-1.5 hover:bg-gray-700" %>
+  <% end %>
+</div>

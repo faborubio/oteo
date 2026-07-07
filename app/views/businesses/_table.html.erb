@@ -1,0 +1,38 @@
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-4 py-2 text-left">Negocio</th>
+        <th class="px-4 py-2 text-left">Comuna</th>
+        <th class="px-4 py-2 text-left">Presencia</th>
+        <th class="px-4 py-2 text-right">Reseñas</th>
+        <th class="px-4 py-2 text-center">POS</th>
+        <th class="px-4 py-2 text-right">Score</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @businesses.each do |business| %>
+        <tr class="hover:bg-gray-50 cursor-pointer" onclick="Turbo.visit('<%= business_path(business) %>')">
+          <td class="px-4 py-2 font-medium text-gray-900"><%= link_to business.name, business_path(business), class: "hover:text-emerald-700" %></td>
+          <td class="px-4 py-2 text-gray-600"><%= business.comuna.name %></td>
+          <td class="px-4 py-2"><%= presence_badge(business.digital_presence) %></td>
+          <td class="px-4 py-2 text-right text-gray-600"><%= business.user_rating_count %></td>
+          <td class="px-4 py-2 text-center">
+            <% if business.pos_candidate %>
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-500" title="Candidato POS"></span>
+            <% end %>
+          </td>
+          <td class="px-4 py-2 text-right font-semibold tabular-nums"><%= lead_score_display(business.lead_score) %></td>
+        </tr>
+      <% end %>
+
+      <% if @businesses.empty? %>
+        <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Sin resultados para este filtro.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if @pagy.pages > 1 %>
+  <div class="mt-4 flex justify-center text-sm"><%== @pagy.series_nav %></div>
+<% end %>

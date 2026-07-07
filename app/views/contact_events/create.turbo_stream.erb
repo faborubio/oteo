@@ -1,0 +1,12 @@
+<% if @contact_event.persisted? %>
+  <%= turbo_stream.prepend "contact_events" do %>
+    <%= render partial: "contact_events/event", object: @contact_event, as: :event %>
+  <% end %>
+  <%= turbo_stream.replace "contact_event_form" do %>
+    <%= render "contact_events/form", business: @business, contact_event: @business.contact_events.new %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace "contact_event_form" do %>
+    <%= render "contact_events/form", business: @business, contact_event: @contact_event %>
+  <% end %>
+<% end %>
