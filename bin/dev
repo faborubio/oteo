@@ -1,9 +1,7 @@
 #!/usr/bin/env sh
 
-if ! gem list foreman -i --silent; then
-  echo "Installing foreman..."
-  gem install foreman
-fi
+# foreman vive en vendor/bundle (BUNDLE_PATH), así que se invoca vía bundle exec.
+# Ver CLAUDE.md "Setup de entorno": siempre bundle exec para los binarios.
 
 # Default to port 3000 if not specified
 export PORT="${PORT:-3000}"
@@ -13,4 +11,4 @@ export PORT="${PORT:-3000}"
 export RUBY_DEBUG_OPEN="true"
 export RUBY_DEBUG_LAZY="true"
 
-exec foreman start -f Procfile.dev "$@"
+exec bundle exec foreman start -f Procfile.dev "$@"
