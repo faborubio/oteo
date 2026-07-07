@@ -8,40 +8,50 @@
 
 ## Gates legales de Fase 0 (bloquean decisiones de arquitectura — verificación humana)
 
-### AUD-001 — ToS de retención de datos de Places (ADR-006) 🔴
-**Contexto:** el modelo asume que `place_id` se guarda indefinidamente y el resto de los
-datos de Places se refresca dentro de una ventana (`places_retention_days: 30` en
-`config/oteo.yml`). Ese valor es un supuesto.
-**Acción:** verificar la versión vigente de los Terms of Service de Places sobre caché y
-retención, y ajustar `places_retention_days`.
-**Impacto si se ignora:** riesgo de violar el contrato que hace viable la fuente (driver #3).
-**Veredicto:** _pendiente_. **Fecha:** —
+> ⚠️ **Investigación técnica (2026-07-07), no asesoría legal.** Los ToS de Google cambian y su
+> interpretación es materia de abogado. Fuentes: Places API Policies y Google Maps Platform
+> Service Specific Terms (developers.google.com / cloud.google.com), consultados el 2026-07-07.
 
-### AUD-002 — Cláusula "No Use With Non-Google Maps" (ADR-007) 🔴
-**Contexto:** el plan es plotear resultados de Places sobre Leaflet + OpenStreetMap. Los ToS
-de Google Maps Platform han prohibido históricamente mostrar datos de sus servicios sobre un
-mapa que no sea de Google.
-**Acción:** verificar la cláusula vigente antes de implementar el mapa (Fase 2).
-**Plan B si sigue activa:** (a) Google Maps JS API (cupo gratuito cubre a un solo usuario;
-el Stimulus controller cambia de librería sin tocar el resto), o (b) Leaflet solo con datos
-propios/manuales (ADR-012).
-**Veredicto:** _pendiente_. **Fecha:** —
+### AUD-001 — ToS de retención de datos de Places (ADR-006) 🟢 verificado (con acción)
+**Contexto:** el modelo asume que `place_id` se guarda indefinidamente y el resto se refresca
+dentro de una ventana (`places_retention_days: 30`).
+**Veredicto (2026-07-07):** **Confirmado.** El `place_id` está **exento** de las restricciones
+de caché → se puede guardar **indefinidamente**. El resto del contenido de Places (incluidas
+lat/lng) se puede cachear **máximo 30 días calendario consecutivos**, tras lo cual **hay que
+borrarlo** (no solo marcarlo vencido). `places_retention_days: 30` es correcto.
+**Acción pendiente (Fase 3):** el sync quincenal refresca lo que reaparece, pero un negocio
+que sale de los resultados envejecería sus campos de Places sin borrarse → **ver AUD-012**
+(job que expira/nulifica campos de Places no refrescados en 30 días). El modelo ya separa
+`place_id` (permanente) de campos con `synced_at` (perecibles): la expiración es estructural.
 
-### AUD-003 — Cupos por SKU vigentes de Places API (ADR-002) 🔴
-**Contexto:** desde 2025 Google reemplazó el crédito mensual de US$200 por cupos mensuales
-por SKU (≈10.000 Essentials / 5.000 Pro / 1.000 Enterprise). El field mask actual
-(`websiteUri`, teléfono) eleva la llamada a Enterprise, el cupo más chico. Proyección con
-ADR-002: ~144 llamadas/mes — holgado, pero sobre valores que hay que confirmar.
-**Acción:** confirmar los cupos por SKU vigentes y validar que 48 combinaciones × ~3 páginas
-caben en el free tier con margen ≥ 30% (NFR §9).
-**Veredicto:** _pendiente_. **Fecha:** —
+### AUD-002 — Cláusula "No Use With Non-Google Maps" (ADR-007) 🟢 verificado (restrictivo)
+**Veredicto (2026-07-07):** **Sigue vigente.** La política de Places es explícita: *"Places API
+results displayed on a map must be shown on a Google Map"*. Plotear contenido de Places
+(nombre, rating, ubicación) sobre Leaflet/OSM **viola los ToS**. → El mapa **no** puede ser
+Leaflet+OSM con datos de Places.
+**Decisión resultante:** para la vista mapa, elegir una de dos (ambas ya previstas en ADR-007):
+  (a) **Google Maps JS API** — su cupo de mapas dinámicos (Essentials) cubre de sobra a un
+      usuario; el Stimulus controller cambia de librería sin tocar el resto; **o**
+  (b) **Leaflet solo con datos manuales** (ADR-012), que son dato propio, no contenido de Places.
+El link "Cómo llegar" a Google Maps de la ficha **sí es válido** (es un enlace, no un embed de
+datos sobre otro mapa). El mapa sigue bloqueado en **AUD-010** hasta elegir plan.
 
-### AUD-004 — Dominio y marca "Oteo" (SAD §16, v1.2.0) 🔴
-**Contexto:** el renombre Catastro → Oteo se hizo tras verificar por búsqueda web que no hay
-conflicto comercial evidente en Chile, pero falta confirmación formal.
-**Acción:** confirmar disponibilidad de dominio en **nic.cl** y de marca en **INAPI**
-(clases 9 y 42).
-**Veredicto:** _pendiente_. **Fecha:** —
+### AUD-003 — Cupos por SKU vigentes de Places API (ADR-002) 🟢 verificado (diseño validado)
+**Veredicto (2026-07-07):** **Confirmado.** Desde el 1-mar-2025 el crédito de US$200 se
+reemplazó por cupos gratuitos **por SKU/mes**: **Essentials 10.000 · Pro 5.000 · Enterprise
+1.000**. Nuestro Text Search pide rating/teléfono/`websiteUri` → cae en **Enterprise (1.000
+gratis/mes)**, el cupo más chico, tal como anticipó ADR-002. Proyección: 48 combinaciones ×
+~3 páginas ≈ **144 llamadas/mes = 14% del cupo** → dentro del margen ≥ 30% del NFR §9.
+**Diseño ADR-002 validado.** No pedimos `reviews` (evita el tier Enterprise+Atmosphere, más caro).
+
+### AUD-004 — Dominio y marca "Oteo" (SAD §16, v1.2.0) 🟡 parcial
+**Veredicto (2026-07-07):**
+- **Dominio `oteo.cl`: NO disponible.** Registrado por *Alex Verdugo* desde 2019-08-24, expira
+  2030 (WHOIS de NIC Chile). → Buscar alternativa (`oteo.app`, `getoteo.cl`, `oteoapp.cl`,
+  `oteo.dev`) o contactar al titular. **No bloquea el desarrollo**, sí el branding público.
+- **Marca INAPI: pendiente.** El Buscador de Marcas de INAPI es una herramienta interactiva
+  que no pude consultar automáticamente. **Acción humana:** buscar "Oteo" en
+  https://www.inapi.cl → Buscador de marcas, clases 9 (software) y 42 (SaaS).
 
 ---
 
@@ -104,3 +114,12 @@ necesita el VPS, secrets (`RAILS_MASTER_KEY`, registry) y los gates legales desp
 config base de Kamal existe (`config/deploy.yml`, `.kamal/secrets`) pero no se ha desplegado.
 **Plan de pago:** configurar `config/deploy.yml` (host, registry, dominio), cargar secrets y
 correr `kamal setup`; probar el `pg_dump` de backup (ADR-010) una vez.
+
+### AUD-012 — Expiración de campos de Places a los 30 días (ADR-006 / AUD-001) 🔴
+**Contexto:** los ToS obligan a **borrar** el contenido de Places (nombre, rating, teléfono,
+lat/lng…) cacheado más de 30 días; solo `place_id` es permanente. El sync quincenal refresca
+los negocios que reaparecen en resultados, pero uno que deja de aparecer (cerró, cambió de
+rubro, cayó del corte) envejecería sus campos sin borrarse → incumplimiento silencioso.
+**Plan de pago (Fase 3):** job recurrente que nulifica los campos de Places (no el `place_id`
+ni el dato propio) de registros con `synced_at` > 30 días; la UI ya tolera "dato vencido".
+Va de la mano con la página de salud y el sync programado de Fase 3.
