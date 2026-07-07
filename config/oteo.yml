@@ -34,6 +34,24 @@ shared:
     - justo.cl
     - fudo.cl
 
+  # Constructores de sitios y plataformas de menú/QR de terceros: el SUBDOMINIO POR DEFECTO
+  # de una plataforma plantilla no es web propia (ADR-003), es lead. Detectados en el sync
+  # real de Curicó (ver CASES.md, 2026-07-07: ueniweb.com, horecaqr.com). Si el negocio usa
+  # la plataforma con su propio dominio .cl, eso NO matchea aquí y cuenta como web_propia.
+  site_builder_domains:
+    - ueniweb.com
+    - horecaqr.com
+    - business.site
+    - negocio.site
+    - wixsite.com
+    - sites.google.com
+    - canva.site
+    - my.canva.site
+    - godaddysites.com
+    - jimdosite.com
+    - mystrikingly.com
+    - weebly.com
+
   # Acortadores que esconden el destino (ADR-003): resolver el redirect antes de clasificar.
   url_shorteners:
     - bit.ly

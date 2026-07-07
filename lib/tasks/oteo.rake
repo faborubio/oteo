@@ -21,6 +21,20 @@ namespace :oteo do
     puts "→ Encoladas #{combos.size} combinaciones. Cuota usada este mes: #{SyncRun.api_calls_this_month} llamadas."
   end
 
+  desc "Re-clasifica todos los negocios con la config actual (sin llamar a la API)"
+  task reclassify: :environment do
+    changed = 0
+    Business.find_each do |b|
+      before = [ b.digital_presence, b.pos_candidate, b.lead_score ]
+      BusinessClassifier.classify(b)
+      if [ b.digital_presence, b.pos_candidate, b.lead_score ] != before
+        b.save!
+        changed += 1
+      end
+    end
+    puts "→ Re-clasificados #{changed} negocios (de #{Business.count})."
+  end
+
   desc "Audita a mano la clasificación de los últimos negocios sincronizados (SAD §10)"
   task :audit, [ :limit ] => :environment do |_t, args|
     n = (args[:limit] || 20).to_i

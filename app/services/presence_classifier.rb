@@ -27,6 +27,7 @@ class PresenceClassifier
 
     return SOLO_REDES if match?(host, social_domains)
     return SOLO_REDES if match?(host, aggregator_domains)
+    return SOLO_REDES if match?(host, site_builder_domains)
 
     WEB_PROPIA
   end
@@ -57,6 +58,7 @@ class PresenceClassifier
 
   def social_domains = config.social_domains
   def aggregator_domains = config.aggregator_domains
+  def site_builder_domains = config.site_builder_domains
   def url_shorteners = config.url_shorteners
   def config = Rails.configuration.oteo
 end

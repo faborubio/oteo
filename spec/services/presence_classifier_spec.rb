@@ -29,6 +29,23 @@ RSpec.describe PresenceClassifier do
       expect(classify("https://pedidosya.cl/restaurantes/curico/mi-picada")).to eq("solo_redes")
       expect(classify("https://www.rappi.cl/restaurantes/123")).to eq("solo_redes")
     end
+
+    it "detecta constructores de sitios como solo_redes (caso real Curicó — CASES.md)" do
+      # trattoria-de-vali.ueniweb.com — página plantilla de UENI, no web propia.
+      expect(classify("https://trattoria-de-vali.ueniweb.com/?utm_campaign=gmb")).to eq("solo_redes")
+      expect(classify("https://mi-negocio.wixsite.com/inicio")).to eq("solo_redes")
+      expect(classify("https://minegocio.business.site")).to eq("solo_redes")
+      # cartas.horecaqr.com — plataforma de menús QR (caso real Curicó)
+      expect(classify("https://cartas.horecaqr.com/c/trattorialapasta")).to eq("solo_redes")
+    end
+  end
+
+  describe "web_propia con dominio propio aunque use un constructor" do
+    it "un .cl propio NO matchea el subdominio del constructor" do
+      # Si usan Wix/UENI pero con su dominio comprado, eso SÍ es web propia.
+      expect(classify("https://ueniweb.com.cl")).to eq("web_propia") # dominio distinto
+      expect(classify("https://minegocio.cl")).to eq("web_propia")
+    end
   end
 
   describe "web_propia" do

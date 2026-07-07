@@ -85,13 +85,13 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
     **decisión: mapa con Google Maps JS API** (plotea Places + manuales sin violar ToS).
     AUD-004 🟢 marca "Oteo" libre en INAPI; dominio no bloquea. **Pendiente: conseguir la
     Places API key (server, IP-restringida) y la Maps JS key (browser, referrer-restringida).**
-- **Fase 1 — Pipeline de datos: ✅ COMPLETA (código).** `SyncJob(comuna, rubro)` idempotente
-  + clasificadores (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`
-  + rake tasks de sync. 96 specs verde (incl. ronda crítica vista de halcón: guard de
-  place_id en blanco, resiliencia por-registro, run nunca huérfano, rake sin acentos).
-  **Pendiente:** correr el primer sync REAL —
-  Curicó × restaurantes— y auditar 20 resultados a mano (necesita `GOOGLE_PLACES_API_KEY`
-  y los gates de AUD-001/003 verificados). Documentar hallazgos en CASES.md.
+- **Fase 1 — Pipeline de datos: ✅ COMPLETA.** `SyncJob(comuna, rubro)` idempotente +
+  clasificadores (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`
+  + rake tasks (sync/audit/reclassify). **Primer sync real hecho** (Curicó × restaurantes,
+  2026-07-07): 20 negocios, 18/20 bien clasificados. Ajuste con evidencia: nueva lista
+  `site_builder_domains` (UENI, HorecaQR, Wix… → solo_redes), ver CASES.md. Falso `web_propia`
+  del directorio de mall queda como limitación conocida (AUD-008). `rake oteo:reclassify`
+  aplica cambios de config sin re-syncar. 121 specs verde.
 - **Fase 2 — Las tres vistas: 🟡 PARCIAL.** ✅ Tabla filtrable (comuna/presencia/pos/rubro,
   carriles reputación vs. nuevos, Turbo Frame + Pagy), ✅ ficha con guion de venta por estado
   + captura móvil de `pos_status` (Turbo Stream) + historial de `contact_events`, ✅ kanban
