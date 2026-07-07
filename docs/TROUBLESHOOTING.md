@@ -44,6 +44,15 @@ No incluir `Pagy::Frontend` en helpers. FleetPilot usa la misma versión: mirar 
 
 ## Google Places (Fase 1+)
 
+### `NameError: uninitialized constant Net::HTTP` en el primer sync real
+**Qué pasó:** `PlacesClient` usa `Net::HTTP` pero no hacía `require "net/http"`. Toda la suite
+pasaba en verde porque **WebMock carga `net/http` por su cuenta** en el entorno de test; en un
+sync real (sin WebMock) la constante no estaba cargada.
+**Por qué:** el stub de tests enmascaró una dependencia faltante — "pasa en tests, falla en producción".
+**Qué cambió:** `require "net/http"` (y `uri`, `json`) al inicio de `app/services/places_client.rb`.
+Verificado con una llamada real de key inválida: devuelve `Result` con error HTTP, no `NameError`.
+
+
 ### `PlacesClient::Result#error` con `HTTP 429` / `RESOURCE_EXHAUSTED`
 **Causa:** cuota del SKU agotada (ADR-002).
 **Fix:** el SyncJob debe abortar y alertar (driver #2: jamás pasar a facturación). Revisar

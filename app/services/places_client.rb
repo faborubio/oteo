@@ -1,3 +1,7 @@
+require "net/http"
+require "uri"
+require "json"
+
 # Adapter tras una interfaz para Google Places API (New) — ADR-002.
 #
 # Regla de oro de cuota: TODOS los campos se piden en el field mask del propio

@@ -21,6 +21,27 @@ namespace :oteo do
     puts "→ Encoladas #{combos.size} combinaciones. Cuota usada este mes: #{SyncRun.api_calls_this_month} llamadas."
   end
 
+  desc "Audita a mano la clasificación de los últimos negocios sincronizados (SAD §10)"
+  task :audit, [ :limit ] => :environment do |_t, args|
+    n = (args[:limit] || 20).to_i
+    businesses = Business.from_places.where.not(synced_at: nil).order(synced_at: :desc).limit(n)
+
+    if businesses.empty?
+      puts "No hay negocios sincronizados. Corre primero: rake 'oteo:sync_now[curico,restaurantes]'"
+      next
+    end
+
+    puts "Auditoría de #{businesses.size} negocios (señal cruda → veredicto del clasificador):\n\n"
+    businesses.each do |b|
+      puts "• #{b.name}  [#{b.comuna.name}]  ⭐#{b.rating || '—'} (#{b.user_rating_count} reseñas)"
+      puts "  website_uri: #{b.website_uri.presence || '(vacío)'}"
+      puts "  → presencia: #{b.digital_presence}   pos_candidate: #{b.pos_candidate}   score: #{b.lead_score}"
+      puts "  types: #{b.types.join(', ')}"
+      puts ""
+    end
+    puts "¿Algún website_uri mal clasificado? Documenta el caso en docs/CASES.md antes de tocar config/oteo.yml."
+  end
+
   desc "Genera negocios de demo (solo dev) para ver las tres vistas sin la API de Places"
   task demo_data: :environment do
     raise "Solo en development" unless Rails.env.development?
