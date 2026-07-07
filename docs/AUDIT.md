@@ -76,6 +76,8 @@ propio muerto clasifica hoy como `web_propia` (lead perdido).
 **Plan de pago (Fase 4):** port `UrlResolver`/`SiteVerifier` inyectable — resolver acortadores
 antes de clasificar y marcar `web_caida` solo con DNS/timeout/5xx (403/405 NO cuentan). Cada
 caso raro se documenta en CASES.md antes de tocar las listas.
+**Nota:** `PresenceClassifier#shortener?` ya detecta acortadores (tested) pero nadie lo cablea
+todavía; hoy un `bit.ly` cae como `web_propia`. El SyncJob lo usará en Fase 4 para marcar el caso.
 
 ### AUD-009 — Subdivisión de consultas por corte de ~60 no implementada (ADR-011) 🔴
 **Contexto:** `PlacesClient` corta en `MAX_PAGES = 3` (~60 resultados por prominencia). El

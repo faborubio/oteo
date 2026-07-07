@@ -120,6 +120,28 @@ RSpec.describe SyncJob, type: :job do
     end
   end
 
+  describe "casos borde de ingesta (auditoría vista de halcón)" do
+    it "omite snapshots sin place_id y NO pisa un negocio manual (place_id nil)" do
+      manual = create(:business, :manual, name: "Almacén de la esquina", pos_status: "usa_el_nuestro")
+
+      sync_run = run_sync(result(snapshot(place_id: ""), snapshot(place_id: nil), api_calls: 1))
+
+      expect(Business.count).to eq(1) # solo el manual; nada nuevo creado
+      expect(manual.reload).to have_attributes(name: "Almacén de la esquina", pos_status: "usa_el_nuestro")
+      expect(sync_run).to have_attributes(found_count: 2, new_count: 0, error_count: 2)
+    end
+
+    it "un registro inválido no tumba el batch: los demás se procesan" do
+      res = result(snapshot(name: nil), snapshot(name: "Válido"), api_calls: 1)
+
+      sync_run = run_sync(res)
+
+      expect(Business.count).to eq(1)
+      expect(Business.last.name).to eq("Válido")
+      expect(sync_run).to have_attributes(found_count: 2, new_count: 1, error_count: 1)
+    end
+  end
+
   describe "manejo de errores de cuota (driver #2)" do
     it "marca el SyncRun como fallido y NO reintenta (no lanza)" do
       res = result(api_calls: 1, error: "HTTP 429: RESOURCE_EXHAUSTED")

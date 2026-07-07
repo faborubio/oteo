@@ -82,7 +82,9 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
     AUD-001/002/003/004. Condicionan el mapa (ADR-007) y la config de cuota antes de Fase 2.
 - **Fase 1 — Pipeline de datos: ✅ COMPLETA (código).** `SyncJob(comuna, rubro)` idempotente
   + clasificadores (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`
-  + rake tasks de sync. 94 specs verde. **Pendiente:** correr el primer sync REAL —
+  + rake tasks de sync. 96 specs verde (incl. ronda crítica vista de halcón: guard de
+  place_id en blanco, resiliencia por-registro, run nunca huérfano, rake sin acentos).
+  **Pendiente:** correr el primer sync REAL —
   Curicó × restaurantes— y auditar 20 resultados a mano (necesita `GOOGLE_PLACES_API_KEY`
   y los gates de AUD-001/003 verificados). Documentar hallazgos en CASES.md.
 - **Fase 2 — Las tres vistas: siguiente.** Tabla filtrable, ficha + captura móvil de `pos_status`,

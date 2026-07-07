@@ -36,6 +36,12 @@ class SyncJob < ApplicationJob
       updated_count: counters[:updated], error_count: counters[:errors]
     )
     run
+  rescue StandardError => e
+    # Nunca dejar el run colgado en "running": un fallo inesperado debe ser visible en
+    # el tablero de salud (§8). handle_failure ya marca failed en sus caminos; esto cubre
+    # el resto y re-lanza para que retry_on/ActiveJob decidan.
+    run&.running? && run.update!(status: "failed", finished_at: Time.current, notes: e.message)
+    raise
   end
 
   private
@@ -62,12 +68,24 @@ class SyncJob < ApplicationJob
 
   def ingest(snapshot, comuna:, rubro:, counters:)
     counters[:found] += 1
+
+    # Guard: un place_id en blanco (dato malformado de Places) matchearía por
+    # find_or_initialize a un negocio MANUAL (place_id nil) y lo pisaría (ADR-012).
+    # Se omite y se cuenta como error, nunca se toca dato de terreno.
+    if snapshot.place_id.blank?
+      counters[:errors] += 1
+      Rails.logger.warn("SyncJob: snapshot sin place_id, se omite: #{snapshot.name.inspect}")
+      return
+    end
+
     business = upsert(snapshot, comuna:)
     add_rubro(business, rubro)
     counters[business.previously_new_record? ? :new : :updated] += 1
-  rescue ActiveRecord::RecordInvalid => e
+  rescue StandardError => e
+    # Resiliencia de batch: un registro malo (validación, carrera RecordNotUnique entre
+    # workers, etc.) no debe tumbar la corrida entera. Se cuenta y se sigue.
     counters[:errors] += 1
-    Rails.logger.warn("SyncJob: registro inválido para #{snapshot.place_id}: #{e.message}")
+    Rails.logger.warn("SyncJob: fallo al procesar #{snapshot.place_id}: #{e.class} #{e.message}")
   end
 
   def upsert(snapshot, comuna:)

@@ -22,7 +22,7 @@ class PresenceClassifier
   def call
     return SIN_PRESENCIA if website_uri.blank?
 
-    host = registrable_host
+    host = normalized_host
     return WEB_PROPIA if host.blank? # URI rara pero presente: no la enterramos como sin_presencia
 
     return SOLO_REDES if match?(host, social_domains)
@@ -34,7 +34,7 @@ class PresenceClassifier
   # ¿El host es un acortador cuyo destino no conocemos sin resolver el redirect?
   # El SyncJob puede usar esto para marcar el caso (CASES.md) en vez de clasificar a ciegas.
   def shortener?
-    host = registrable_host
+    host = normalized_host
     host.present? && match?(host, url_shorteners)
   end
 
@@ -42,7 +42,7 @@ class PresenceClassifier
 
   attr_reader :website_uri
 
-  def registrable_host
+  def normalized_host
     uri = website_uri.match?(%r{\Ahttps?://}i) ? website_uri : "https://#{website_uri}"
     host = URI.parse(uri).host
     host&.downcase&.delete_prefix("www.")

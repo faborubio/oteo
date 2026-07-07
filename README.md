@@ -134,7 +134,7 @@ pasa a facturación.
 ## Calidad
 
 ```bash
-bundle exec rspec                 # suite completa (94 ejemplos)
+bundle exec rspec                 # suite completa (96 ejemplos)
 COVERAGE=true bundle exec rspec   # con reporte de cobertura
 bundle exec rubocop               # estilo (omakase)
 bin/brakeman --no-pager           # análisis de seguridad estático
