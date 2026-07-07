@@ -92,12 +92,12 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   `site_builder_domains` (UENI, HorecaQR, Wix… → solo_redes), ver CASES.md. Falso `web_propia`
   del directorio de mall queda como limitación conocida (AUD-008). `rake oteo:reclassify`
   aplica cambios de config sin re-syncar. 121 specs verde.
-- **Fase 2 — Las tres vistas: 🟡 PARCIAL.** ✅ Tabla filtrable (comuna/presencia/pos/rubro,
+- **Fase 2 — Las tres vistas: ✅ COMPLETA.** ✅ Tabla filtrable (comuna/presencia/pos/rubro,
   carriles reputación vs. nuevos, Turbo Frame + Pagy), ✅ ficha con guion de venta por estado
   + captura móvil de `pos_status` (Turbo Stream) + historial de `contact_events`, ✅ kanban
-  drag&drop (SortableJS via importmap, cada movimiento deja evento). 113 specs verde.
-  ⚠️ **Diferidos:** mapa Leaflet (**bloqueado por gate AUD-002**, ver AUD-010) y deploy Kamal
-  (AUD-011). El resto de la vista mapa está listo para enchufarse cuando el gate se despeje.
+  drag&drop (SortableJS), ✅ **mapa Google Maps JS** (marcadores por presencia, infowindow →
+  ficha; AUD-002 resuelto → Plan A). 125 specs verde. **Pendiente operativo:** cargar la Maps
+  JS key (`GOOGLE_MAPS_JS_API_KEY`); sin ella el mapa muestra fallback. Deploy Kamal: AUD-011.
   Datos para revisar la UI sin API: `rake oteo:demo_data` (solo dev).
 - **Fase 3 — Operación:** sync quincenal, página de salud, backups probados, guiones.
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.

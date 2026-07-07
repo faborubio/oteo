@@ -42,6 +42,17 @@ module BusinessesHelper
                    "Verificar antes de contactar."
   }.freeze
 
+  # Color del marcador en el mapa por estado de presencia (ADR-007). Debe coincidir con
+  # el mapa de colores del Stimulus controller (map_controller.js).
+  PRESENCE_MARKER_COLOR = {
+    "sin_presencia" => "#dc2626",
+    "solo_redes" => "#ea580c",
+    "web_propia" => "#9ca3af",
+    "web_caida" => "#ca8a04"
+  }.freeze
+
+  def presence_color(state) = PRESENCE_MARKER_COLOR.fetch(state, "#6b7280")
+
   def presence_label(state) = PRESENCE_LABELS.fetch(state, "Sin clasificar")
 
   def presence_badge(state)

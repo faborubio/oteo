@@ -4,6 +4,9 @@ Rails.application.routes.draw do
 
   # Las tres vistas sobre `businesses` (SAD §4.2): tabla, ficha, kanban.
   resources :businesses, only: [ :index, :show ] do
+    collection do
+      get :map # tercera vista: mapa (Google Maps JS, ADR-007/AUD-002)
+    end
     member do
       patch :pos_status # captura móvil de pos_status en 1 tap (ADR-004)
     end

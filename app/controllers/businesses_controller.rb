@@ -13,6 +13,22 @@ class BusinessesController < ApplicationController
     @contact_event = @business.contact_events.new
   end
 
+  # Tercera vista: mapa (Google Maps JS — ADR-007/AUD-002). Muestra todos los leads que
+  # matchean el filtro (ambos carriles) con coordenadas. JSON acotado al filtro (NFR §9).
+  def map
+    @comunas = Comuna.active.order(:name)
+    @rubros = Rubro.active.order(:label)
+    businesses = apply_filters(Business.includes(:comuna).active_pipeline)
+                   .where.not(lat: nil).where.not(lng: nil).by_score.limit(500)
+    @markers = businesses.map do |b|
+      {
+        id: b.id, name: b.name, lat: b.lat.to_f, lng: b.lng.to_f,
+        presence: b.digital_presence, comuna: b.comuna.name,
+        score: b.lead_score.to_f, url: business_path(b)
+      }
+    end
+  end
+
   # Captura móvil de pos_status en 1 tap (ADR-004). El dato observado manda sobre la heurística.
   def pos_status
     status = params.dig(:business, :pos_status)
@@ -48,18 +64,19 @@ class BusinessesController < ApplicationController
   end
 
   # Carril principal (con reputación) vs. "nuevos/sin reputación" (ADR-008): no compiten
-  # en el mismo ranking. Filtros de comuna, presencia, pos_candidate y rubro.
+  # en el mismo ranking. La tabla usa el carril; el mapa muestra ambos.
   def filtered_businesses
-    # La tabla solo muestra comuna (no rubros): includes(:comuna) evita N+1 sin chocar
-    # con el joins(:rubros) del filtro por rubro (eager_load).
-    scope = Business.includes(:comuna).active_pipeline
+    scope = params[:lane] == "nuevos" ? Business.without_reputation : Business.with_reputation
+    apply_filters(scope.includes(:comuna).active_pipeline).by_score
+  end
 
-    scope = params[:lane] == "nuevos" ? scope.without_reputation : scope.with_reputation
+  # Filtros compartidos por tabla y mapa: comuna, presencia, pos_candidate y rubro.
+  # includes(:comuna) evita N+1 sin chocar con el joins(:rubros) del filtro por rubro.
+  def apply_filters(scope)
     scope = scope.in_comuna(params[:comuna_id]) if params[:comuna_id].present?
     scope = scope.with_presence(params[:presence]) if params[:presence].present?
     scope = scope.pos_candidates if params[:pos_candidate] == "1"
     scope = scope.joins(:rubros).where(rubros: { id: params[:rubro_id] }) if params[:rubro_id].present?
-
-    scope.by_score
+    scope
   end
 end

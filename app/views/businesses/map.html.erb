@@ -1,0 +1,49 @@
+<% content_for :title, "Mapa — Oteo" %>
+
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-xl font-bold">Mapa de leads</h1>
+  <div class="text-sm text-gray-500"><%= pluralize(@markers.size, "negocio") %> en el mapa</div>
+</div>
+
+<%# Mismos filtros que la tabla; recarga completa para re-plotear los marcadores %>
+<%= form_with url: map_businesses_path, method: :get, class: "grid grid-cols-2 md:grid-cols-5 gap-3 mb-4 bg-white p-4 rounded-lg border border-gray-200" do |f| %>
+  <%= f.select :comuna_id, options_from_collection_for_select(@comunas, :id, :name, params[:comuna_id]),
+        { include_blank: "Todas las comunas" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
+  <%= f.select :presence,
+        options_for_select([ [ "Sin presencia", "sin_presencia" ], [ "Solo redes", "solo_redes" ], [ "Web propia", "web_propia" ], [ "Web caída", "web_caida" ] ], params[:presence]),
+        { include_blank: "Toda presencia" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
+  <%= f.select :rubro_id, options_from_collection_for_select(@rubros, :id, :label, params[:rubro_id]),
+        { include_blank: "Todos los rubros" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
+  <label class="flex items-center gap-2 text-sm text-gray-700">
+    <%= f.check_box :pos_candidate, { checked: params[:pos_candidate] == "1", onchange: "this.form.requestSubmit()" }, "1", "0" %>
+    Candidato POS
+  </label>
+  <%= link_to "Limpiar", map_businesses_path, class: "text-sm text-gray-500 self-center hover:text-gray-800" %>
+<% end %>
+
+<%# Leyenda de colores por estado (ADR-007) %>
+<div class="flex flex-wrap gap-4 mb-3 text-sm">
+  <% %w[sin_presencia solo_redes web_propia web_caida].each do |state| %>
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block w-3 h-3 rounded-full" style="background: <%= presence_color(state) %>"></span>
+      <%= presence_label(state) %>
+    </span>
+  <% end %>
+</div>
+
+<% if google_maps_api_key.present? %>
+  <div
+    data-controller="map"
+    data-map-api-key-value="<%= google_maps_api_key %>"
+    data-map-markers-value="<%= @markers.to_json %>"
+    data-map-target="canvas"
+    class="w-full rounded-lg border border-gray-200 bg-gray-100"
+    style="height: 70vh;">
+  </div>
+<% else %>
+  <div class="rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-800 p-6 text-sm">
+    Falta la <strong>key de Google Maps JS</strong>. Configúrala en
+    <code>GOOGLE_MAPS_JS_API_KEY</code> o en credentials <code>google.maps_js_api_key</code>
+    (browser, restringida por HTTP referrer). El resto de la vista ya está listo.
+  </div>
+<% end %>

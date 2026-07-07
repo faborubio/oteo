@@ -29,7 +29,8 @@
         <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
           <div class="flex items-center gap-6">
             <%= link_to "Oteo", root_path, class: "font-bold text-lg text-emerald-700" %>
-            <%= link_to "Leads", businesses_path, class: nav_link_class(controller_name == "businesses") %>
+            <%= link_to "Leads", businesses_path, class: nav_link_class(controller_name == "businesses" && action_name != "map") %>
+            <%= link_to "Mapa", map_businesses_path, class: nav_link_class(action_name == "map") %>
             <%= link_to "Kanban", kanban_path, class: nav_link_class(controller_name == "kanban") %>
           </div>
           <%= button_to "Salir", session_path, method: :delete,

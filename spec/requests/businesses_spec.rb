@@ -83,6 +83,58 @@ RSpec.describe "Businesses", type: :request do
     end
   end
 
+  describe "GET /businesses/map (mapa)" do
+    around do |example|
+      old = ENV["GOOGLE_MAPS_JS_API_KEY"]
+      ENV["GOOGLE_MAPS_JS_API_KEY"] = "test-map-key"
+      example.run
+      ENV["GOOGLE_MAPS_JS_API_KEY"] = old
+    end
+
+    it "plotea solo negocios con coordenadas" do
+      con = create(:business, name: "ConCoord", comuna: comuna, user_rating_count: 20, lat: -34.98, lng: -71.23)
+      create(:business, name: "SinCoord", comuna: comuna, user_rating_count: 20, lat: nil, lng: nil)
+
+      get map_businesses_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ConCoord")
+      expect(response.body).not_to include("SinCoord")
+      expect(response.body).to include("data-controller=\"map\"")
+    end
+
+    it "muestra ambos carriles (con y sin reputación) en el mapa" do
+      create(:business, name: "ConRep", comuna: comuna, user_rating_count: 80, lat: -34.98, lng: -71.23)
+      create(:business, :sin_reputacion, name: "SinRep", comuna: comuna, lat: -34.99, lng: -71.24)
+
+      get map_businesses_path
+
+      expect(response.body).to include("ConRep").and include("SinRep")
+    end
+
+    it "filtra por comuna" do
+      otra = create(:comuna, name: "Molina")
+      create(:business, name: "EnCurico", comuna: comuna, user_rating_count: 20, lat: -34.98, lng: -71.23)
+      create(:business, name: "EnMolina", comuna: otra, user_rating_count: 20, lat: -35.11, lng: -71.28)
+
+      get map_businesses_path(comuna_id: comuna.id)
+
+      expect(response.body).to include("EnCurico")
+      expect(response.body).not_to include("EnMolina")
+    end
+
+    it "sin key configurada muestra el fallback, no el mapa" do
+      ENV["GOOGLE_MAPS_JS_API_KEY"] = nil
+      create(:business, comuna: comuna, user_rating_count: 20, lat: -34.98, lng: -71.23)
+
+      get map_businesses_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Falta la")
+      expect(response.body).not_to include("data-controller=\"map\"")
+    end
+  end
+
   describe "GET /businesses/:id (ficha)" do
     it "muestra el guion de venta según el estado de presencia (ADR-003)" do
       business = create(:business, :sin_presencia, comuna: comuna, user_rating_count: 40)

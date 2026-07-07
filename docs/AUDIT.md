@@ -95,7 +95,15 @@ El sesgo de prominencia (los mejores leads quedan fuera) no está corregido.
 subdividir la consulta por barrio o sinónimo del rubro, registrando cada sub-consulta en
 `sync_runs`. El `SyncJob` ya acepta `query:` explícito para esto.
 
-### AUD-010 — Mapa (tercera vista) NO implementado: bloqueado por gate legal (ADR-007 / AUD-002) 🔴
+### AUD-010 — Mapa (tercera vista): ✅ implementado con Google Maps JS 🟢
+**Cierre (2026-07-07):** las tres vistas del SAD §4.2 están completas. El mapa usa Google Maps
+JS (Stimulus `map_controller.js`), marcadores coloreados por `digital_presence`, infowindow con
+link a la ficha; JSON acotado al filtro activo (NFR §9). Renderizado verificado con datos reales
+de Curicó. **Único pendiente operativo:** cargar la Maps JS API key (browser, referrer-restringida)
+en `GOOGLE_MAPS_JS_API_KEY` o credentials `google.maps_js_api_key`; sin ella la vista muestra un
+fallback claro. Historial de la decisión (por qué Google Maps y no Leaflet) abajo:
+
+### AUD-010b — (histórico) por qué el mapa NO fue Leaflet 🔴
 **Contexto:** Fase 2 entrega dos de las tres vistas (tabla y kanban). El **mapa Leaflet queda
 fuera a propósito**: plotear datos de Places sobre un mapa no-Google puede violar los ToS
 ("No Use With Non-Google Maps"). Escribirlo hoy sería construir sobre un gate sin verificar.
