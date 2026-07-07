@@ -29,12 +29,11 @@ que sale de los resultados envejecería sus campos de Places sin borrarse → **
 results displayed on a map must be shown on a Google Map"*. Plotear contenido de Places
 (nombre, rating, ubicación) sobre Leaflet/OSM **viola los ToS**. → El mapa **no** puede ser
 Leaflet+OSM con datos de Places.
-**Decisión resultante:** para la vista mapa, elegir una de dos (ambas ya previstas en ADR-007):
-  (a) **Google Maps JS API** — su cupo de mapas dinámicos (Essentials) cubre de sobra a un
-      usuario; el Stimulus controller cambia de librería sin tocar el resto; **o**
-  (b) **Leaflet solo con datos manuales** (ADR-012), que son dato propio, no contenido de Places.
-El link "Cómo llegar" a Google Maps de la ficha **sí es válido** (es un enlace, no un embed de
-datos sobre otro mapa). El mapa sigue bloqueado en **AUD-010** hasta elegir plan.
+**Decisión (2026-07-07): Plan A — Google Maps JS API.** Su cupo de mapas dinámicos cubre de
+sobra a un solo usuario y permite plotear TODOS los datos (Places + manuales) sin violar ToS.
+El Stimulus controller del mapa usará Google Maps JS en vez de Leaflet; el resto de la vista
+(marcadores por estado, click → ficha) no cambia. El link "Cómo llegar" de la ficha ya es
+válido (es un enlace, no un embed). Implementación en **AUD-010** (necesita la Maps JS API key).
 
 ### AUD-003 — Cupos por SKU vigentes de Places API (ADR-002) 🟢 verificado (diseño validado)
 **Veredicto (2026-07-07):** **Confirmado.** Desde el 1-mar-2025 el crédito de US$200 se
@@ -44,14 +43,13 @@ gratis/mes)**, el cupo más chico, tal como anticipó ADR-002. Proyección: 48 c
 ~3 páginas ≈ **144 llamadas/mes = 14% del cupo** → dentro del margen ≥ 30% del NFR §9.
 **Diseño ADR-002 validado.** No pedimos `reviews` (evita el tier Enterprise+Atmosphere, más caro).
 
-### AUD-004 — Dominio y marca "Oteo" (SAD §16, v1.2.0) 🟡 parcial
+### AUD-004 — Dominio y marca "Oteo" (SAD §16, v1.2.0) 🟢 resuelto
 **Veredicto (2026-07-07):**
-- **Dominio `oteo.cl`: NO disponible.** Registrado por *Alex Verdugo* desde 2019-08-24, expira
-  2030 (WHOIS de NIC Chile). → Buscar alternativa (`oteo.app`, `getoteo.cl`, `oteoapp.cl`,
-  `oteo.dev`) o contactar al titular. **No bloquea el desarrollo**, sí el branding público.
-- **Marca INAPI: pendiente.** El Buscador de Marcas de INAPI es una herramienta interactiva
-  que no pude consultar automáticamente. **Acción humana:** buscar "Oteo" en
-  https://www.inapi.cl → Buscador de marcas, clases 9 (software) y 42 (SaaS).
+- **Marca INAPI: libre.** El autor verificó que "Oteo" no está registrado en INAPI → sin
+  conflicto de marca para el nombre.
+- **Dominio: no bloquea.** `oteo.cl`/`.com` están tomados pero el branding público no es
+  prioridad de una herramienta interna; se resolverá con una variante cuando/si se necesite.
+**Cierre:** el renombre Catastro → Oteo queda firme.
 
 ---
 
@@ -101,12 +99,11 @@ subdividir la consulta por barrio o sinónimo del rubro, registrando cada sub-co
 **Contexto:** Fase 2 entrega dos de las tres vistas (tabla y kanban). El **mapa Leaflet queda
 fuera a propósito**: plotear datos de Places sobre un mapa no-Google puede violar los ToS
 ("No Use With Non-Google Maps"). Escribirlo hoy sería construir sobre un gate sin verificar.
-**Depende de:** AUD-002. Cuando se resuelva:
-- Si la cláusula sigue activa → Plan B: Google Maps JS API, o Leaflet solo con datos manuales.
-- El `BusinessesController#show` ya expone lat/lng y hay un link "Cómo llegar" a Google Maps
-  (un link normal, no un embed: eso sí es ToS-safe).
-**Plan de pago:** implementar la vista mapa en un Stimulus controller aislado una vez despejado
-el gate, sin tocar el resto (la coordenada ya está en el modelo).
+**Decisión (2026-07-07):** AUD-002 resuelto → **Google Maps JS API** (plotea Places + manuales
+sin violar ToS). Ya no está "bloqueado" sino "pendiente de implementar": necesita la Maps JS
+API key (browser, restringida por HTTP referrer). El `show` ya expone lat/lng.
+**Plan de pago:** Stimulus controller `map` que carga Google Maps JS, marcadores coloreados por
+`digital_presence`, click → Turbo Frame con la ficha; JSON acotado al filtro activo (NFR §9).
 
 ### AUD-011 — Deploy con Kamal no ejecutado 🔴
 **Contexto:** Fase 2 según el SAD termina con "deploy Kamal y salir a terreno". El deploy real

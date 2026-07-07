@@ -80,11 +80,11 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   migraciones (con `source` y `business_rubros` desde el día 1), taxonomías seed (48
   combinaciones), `PlacesClient` con specs WebMock, docs vivos, CI. Suite verde.
   - **Gates legales revisados 2026-07-07** (ver [docs/AUDIT.md](docs/AUDIT.md), no es asesoría legal):
-    AUD-001 🟢 caché Places = 30 días, `place_id` indefinido (correcto; falta job de expiración,
-    AUD-012). AUD-003 🟢 cupos por SKU confirmados, nuestro uso Enterprise ~144/1.000 mensuales.
-    AUD-002 🟢 **restrictivo**: Places NO se puede plotear en mapa no-Google → mapa con Google
-    Maps JS o solo datos manuales. AUD-004 🟡 `oteo.cl` ocupado (buscar alternativa); marca
-    INAPI pendiente de consulta humana.
+    AUD-001 🟢 caché Places = 30 días, `place_id` indefinido (falta job de expiración, AUD-012).
+    AUD-003 🟢 cupos por SKU confirmados, uso Enterprise ~144/1.000 mensuales. AUD-002 🟢
+    **decisión: mapa con Google Maps JS API** (plotea Places + manuales sin violar ToS).
+    AUD-004 🟢 marca "Oteo" libre en INAPI; dominio no bloquea. **Pendiente: conseguir la
+    Places API key (server, IP-restringida) y la Maps JS key (browser, referrer-restringida).**
 - **Fase 1 — Pipeline de datos: ✅ COMPLETA (código).** `SyncJob(comuna, rubro)` idempotente
   + clasificadores (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`
   + rake tasks de sync. 96 specs verde (incl. ronda crítica vista de halcón: guard de
