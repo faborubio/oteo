@@ -77,8 +77,20 @@ namespace :oteo do
   task :sync_now, [ :comuna, :rubro ] => :environment do |_t, args|
     comuna = find_comuna!(args[:comuna])
     rubro = Rubro.find_by!(key: args[:rubro])
-    run = SyncJob.perform_now(comuna.id, rubro.id)
-    puts "→ #{run.status}: #{run.found_count} encontrados (#{run.new_count} nuevos, " \
-         "#{run.updated_count} actualizados, #{run.error_count} errores), #{run.api_calls} llamadas."
+
+    # perform_now puede devolver el SyncRun, o —si retry_on manejó un error— la excepción.
+    # En cualquier caso el SyncJob ya dejó su SyncRun en la BD: lo leemos de ahí.
+    SyncJob.perform_now(comuna.id, rubro.id) rescue nil # rubocop:disable Style/RescueModifier
+    run = SyncRun.where(comuna: comuna, rubro: rubro).order(:created_at).last
+
+    if run.nil?
+      puts "→ No se creó SyncRun (revisa la conexión)."
+    elsif run.success?
+      puts "→ success: #{run.found_count} encontrados (#{run.new_count} nuevos, " \
+           "#{run.updated_count} actualizados, #{run.error_count} errores), #{run.api_calls} llamadas."
+    else
+      puts "→ #{run.status.upcase} (#{run.api_calls} llamadas)."
+      puts "  Motivo: #{run.notes}"
+    end
   end
 end
