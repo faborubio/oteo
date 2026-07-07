@@ -1,0 +1,16 @@
+{
+  "places": [
+    {
+      "id": "ChIJ_curico_resto_3",
+      "displayName": { "text": "Restaurant Los Robles", "languageCode": "es" },
+      "formattedAddress": "Prat 789, Curicó, Maule",
+      "location": { "latitude": -34.9840, "longitude": -71.2380 },
+      "rating": 4.1,
+      "userRatingCount": 42,
+      "websiteUri": "https://losrobles.cl",
+      "nationalPhoneNumber": "+56 75 220 1122",
+      "types": ["restaurant", "food"],
+      "businessStatus": "CLOSED_TEMPORARILY"
+    }
+  ]
+}

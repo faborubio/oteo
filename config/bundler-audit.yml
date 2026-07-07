@@ -1,0 +1,9 @@
+# Audit all gems listed in the Gemfile for known security problems by running bin/bundler-audit.
+# CVEs that are not relevant to the application can be enumerated on the ignore list below.
+
+ignore:
+  # webrick 1.9.2 — CVE-2026-38969 (GHSA-h4w6-wx8r-p68v).
+  # Dependencia SOLO de test: la trae ferrum (vía cuprite) para manejar Chrome headless
+  # en system specs. No se usa en producción (el server es Puma) ni se expone a red externa.
+  # Sin versión parcheada disponible al día de hoy. Ver AUD-007 en docs/AUDIT.md.
+  - CVE-2026-38969

@@ -1,0 +1,58 @@
+# Configuración de dominio de Oteo (ADR-003 / ADR-006 / ADR-008).
+# Vive en configuración, no en código: se ajusta sin tocar clasificadores.
+# CASES.md es la memoria de por qué cada dominio está en estas listas.
+
+shared:
+  # Dominios que cuentan como "solo redes", no web propia (ADR-003).
+  # Un URI que matchea aquí => digital_presence: solo_redes.
+  social_domains:
+    - facebook.com
+    - fb.com
+    - fb.me
+    - m.facebook.com
+    - instagram.com
+    - instagr.am
+    - linktr.ee
+    - linktree.com
+    - wa.me
+    - api.whatsapp.com
+    - chat.whatsapp.com
+    - tiktok.com
+    - twitter.com
+    - x.com
+    - youtube.com
+    - beacons.ai
+
+  # Agregadores de delivery y catálogos de terceros (ADR-003): también solo_redes.
+  # Excelente lead: ya pagan comisión por existir online.
+  aggregator_domains:
+    - pedidosya.cl
+    - pedidosya.com
+    - rappi.cl
+    - rappi.com
+    - ubereats.com
+    - justo.cl
+    - fudo.cl
+
+  # Acortadores que esconden el destino (ADR-003): resolver el redirect antes de clasificar.
+  url_shorteners:
+    - bit.ly
+    - cutt.ly
+    - goo.gl
+    - t.co
+    - ow.ly
+    - tinyurl.com
+
+  # Pesos del lead_score (ADR-008): log(1 + user_rating_count) * peso_presencia * bonus_pos.
+  # Hipótesis inicial; se calibra con la evidencia de los primeros contactos.
+  lead_score:
+    presence_weights:
+      sin_presencia: 1.0
+      solo_redes: 0.8
+      web_caida: 0.9
+      web_propia: 0.0
+    pos_candidate_bonus: 1.25
+
+  # Ventana de retención de datos de Places en días (ADR-006).
+  # ⚠️ Gate de Fase 0: VERIFICAR el valor vigente en los ToS antes de confiar en él.
+  places_retention_days: 30

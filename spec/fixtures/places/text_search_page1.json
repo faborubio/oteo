@@ -1,0 +1,27 @@
+{
+  "places": [
+    {
+      "id": "ChIJ_curico_resto_1",
+      "displayName": { "text": "Fuente de Soda El Rápido", "languageCode": "es" },
+      "formattedAddress": "Yungay 123, Curicó, Maule",
+      "location": { "latitude": -34.9854, "longitude": -71.2394 },
+      "rating": 4.6,
+      "userRatingCount": 213,
+      "types": ["restaurant", "food", "point_of_interest"],
+      "businessStatus": "OPERATIONAL"
+    },
+    {
+      "id": "ChIJ_curico_resto_2",
+      "displayName": { "text": "Cocinería Doña Marta", "languageCode": "es" },
+      "formattedAddress": "Merced 456, Curicó, Maule",
+      "location": { "latitude": -34.9871, "longitude": -71.2402 },
+      "rating": 4.3,
+      "userRatingCount": 87,
+      "websiteUri": "https://instagram.com/cocineria.martamarta",
+      "nationalPhoneNumber": "+56 75 231 4455",
+      "types": ["restaurant", "food"],
+      "businessStatus": "OPERATIONAL"
+    }
+  ],
+  "nextPageToken": "TOKEN_PAGE_2"
+}
