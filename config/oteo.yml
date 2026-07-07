@@ -43,6 +43,25 @@ shared:
     - ow.ly
     - tinyurl.com
 
+  # Tipos de Places que marcan pos_candidate = true (ADR-004): rubros donde un POS
+  # es candidato natural. La heurística pre-filtra a quién preguntar; el dato manual
+  # (pos_status) manda sobre esta columna.
+  pos_candidate_types:
+    - restaurant
+    - meal_takeaway
+    - meal_delivery
+    - cafe
+    - bakery
+    - bar
+    - convenience_store
+    - liquor_store
+    - supermarket
+    - grocery_store
+    - pharmacy
+    - drugstore
+    - food_store
+    - butcher_shop
+
   # Pesos del lead_score (ADR-008): log(1 + user_rating_count) * peso_presencia * bonus_pos.
   # Hipótesis inicial; se calibra con la evidencia de los primeros contactos.
   lead_score:

@@ -65,3 +65,22 @@ automático destructivo.
 manejar Chrome headless en system specs). No corre en producción (server = Puma) ni se expone
 a red. Sin versión parcheada disponible al día de hoy. Ignorado en `config/bundler-audit.yml`.
 **Plan de pago:** `bundle update webrick` cuando salga la versión parcheada y quitar el ignore.
+
+### AUD-008 — Verificación HTTP en vivo no implementada (ADR-003) 🔴
+**Contexto:** `PresenceClassifier` es lógica pura (sin red). No resuelve acortadores
+(bit.ly → destino real), no detecta dominios muertos/estacionados (`web_caida`), ni distingue
+403 anti-bot de un sitio caído. `#shortener?` marca el caso pero no lo resuelve. Un dominio
+propio muerto clasifica hoy como `web_propia` (lead perdido).
+**Por qué se difiere:** meter N llamadas HTTP en cada sync lo vuelve lento y frágil; §13 ubica
+"verificación HTTP de webs" en Fase 4.
+**Plan de pago (Fase 4):** port `UrlResolver`/`SiteVerifier` inyectable — resolver acortadores
+antes de clasificar y marcar `web_caida` solo con DNS/timeout/5xx (403/405 NO cuentan). Cada
+caso raro se documenta en CASES.md antes de tocar las listas.
+
+### AUD-009 — Subdivisión de consultas por corte de ~60 no implementada (ADR-011) 🔴
+**Contexto:** `PlacesClient` corta en `MAX_PAGES = 3` (~60 resultados por prominencia). El
+`SyncJob` aún no detecta el corte (60 resultados = señal) ni subdivide por sector/sinónimo.
+El sesgo de prominencia (los mejores leads quedan fuera) no está corregido.
+**Plan de pago (Fase 1.5 / donde el corte se detecte):** cuando una combinación devuelva 60,
+subdividir la consulta por barrio o sinónimo del rubro, registrando cada sub-consulta en
+`sync_runs`. El `SyncJob` ya acepta `query:` explícito para esto.

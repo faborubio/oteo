@@ -54,6 +54,19 @@ Pipeline batch **sincronizar → clasificar → persistir**; todo lo demás son 
 `businesses`. `PlacesClient` es un adapter que emite `Snapshot` normalizado — el dominio
 no sabe de Google (ADR-002). En tests el adapter se stubea con WebMock: cero llamadas reales.
 
+## Pipeline de sync (Fase 1)
+`SyncJob(comuna_id, rubro_id, query:)` — idempotente: upsert por `place_id`, agrega el rubro
+sin reemplazar (ADR-013), NUNCA toca campos manuales, archiva cierres permanentes con evento
+de sistema, audita `api_calls` en `sync_runs` y aborta sin reintentar si la cuota se agota
+(driver #2). Clasificadores (PORO, lógica pura, testeable sin red):
+- `PresenceClassifier` → `digital_presence` (ADR-003), listas en `config/oteo.yml`.
+- `PosCandidateClassifier` → `pos_candidate` desde `types` (ADR-004).
+- `LeadScorer` → `log(1+reseñas) × peso_presencia × bonus_pos` (ADR-008).
+- `BusinessClassifier` → facade que aplica los tres en orden.
+
+Disparar sync manual: `rake 'oteo:sync_now[curico,restaurantes]'` (síncrono, para auditar) ·
+`rake oteo:sync_all` (encola todas las combinaciones activas). Necesita `GOOGLE_PLACES_API_KEY`.
+
 ## Modelo de datos (§6 del SAD)
 `businesses` (central: `source` places/manual, `place_id` nullable con índice único parcial,
 datos de Places + clasificación + datos propios) · `business_rubros` (n:m, agrega nunca
@@ -67,10 +80,12 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   combinaciones), `PlacesClient` con specs WebMock, docs vivos, CI. Suite verde.
   - ⚠️ **Gates legales pendientes de verificación humana** — ver [docs/AUDIT.md](docs/AUDIT.md)
     AUD-001/002/003/004. Condicionan el mapa (ADR-007) y la config de cuota antes de Fase 2.
-- **Fase 1 — Pipeline de datos: siguiente.** `SyncJob(comuna, rubro)` idempotente +
-  clasificador (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`.
-  Primer sync real: **Curicó × restaurantes**; auditar 20 resultados a mano.
-- **Fase 2 — Las tres vistas:** tabla filtrable, ficha + captura móvil de `pos_status`,
+- **Fase 1 — Pipeline de datos: ✅ COMPLETA (código).** `SyncJob(comuna, rubro)` idempotente
+  + clasificadores (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`
+  + rake tasks de sync. 94 specs verde. **Pendiente:** correr el primer sync REAL —
+  Curicó × restaurantes— y auditar 20 resultados a mano (necesita `GOOGLE_PLACES_API_KEY`
+  y los gates de AUD-001/003 verificados). Documentar hallazgos en CASES.md.
+- **Fase 2 — Las tres vistas: siguiente.** Tabla filtrable, ficha + captura móvil de `pos_status`,
   kanban (Turbo Streams + SortableJS), mapa Leaflet. Deploy Kamal y salir a terreno.
 - **Fase 3 — Operación:** sync quincenal, página de salud, backups probados, guiones.
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
