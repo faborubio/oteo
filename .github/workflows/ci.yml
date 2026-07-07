@@ -103,6 +103,7 @@ jobs:
           PGUSER: oteo
           PGPASSWORD: oteo
         run: |
+          bin/rails tailwindcss:build
           bin/rails db:test:prepare
           bundle exec rspec
 

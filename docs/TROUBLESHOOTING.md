@@ -30,6 +30,16 @@ En v43 no existen los `extras/` y `Pagy::DEFAULT` está **congelado** (no se pue
 `@pagy, @x = pagy(scope, limit: 30)`; en la vista `<%== @pagy.series_nav %>` (no `pagy_nav`).
 No incluir `Pagy::Frontend` en helpers. FleetPilot usa la misma versión: mirar ahí si hay dudas.
 
+### La app carga pero SIN estilos (HTML pelado, Tailwind no aplica)
+**Causa:** el setup de Tailwind quedó incompleto porque el `bundle` del `rails new` original
+falló a mitad → no existía `app/assets/builds/tailwind.css`, el `Procfile.dev` estaba vacío y
+el layout linkeaba `:app` (asset inexistente) en vez del build de Tailwind.
+**Fix (ya aplicado):** `bin/rails tailwindcss:install` (crea input `app/assets/tailwind/application.css`,
+`Procfile.dev`, `bin/dev`, y compila el build). El layout linkea `stylesheet_link_tag "tailwind"`.
+**Operar:** usar **`bin/dev`** (no `bin/rails server`): corre el watcher que recompila el CSS al
+tocar vistas. El build (`app/assets/builds/tailwind.css`) está gitignoreado → en CI se genera con
+`bin/rails tailwindcss:build` antes de los specs (el layout lo linkea y propshaft falla si falta).
+
 ## Base de datos
 
 ### `ActiveRecord::PendingMigrationError` al correr specs
