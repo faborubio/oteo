@@ -35,12 +35,17 @@ kamal app exec 'OTEO_ADMIN_EMAIL=tu@mail OTEO_ADMIN_PASSWORD=secreto bin/rails d
 Deploys posteriores: `kamal deploy`.
 
 ## 4. Backups (ADR-010) — obligatorio antes de confiar en producción
-1. Copiar `script/pg_backup.sh` al VPS (o ejecutarlo dentro del contenedor de la BD).
-2. Completar el `TODO` del script: enviar el dump **fuera del VPS** (rclone/S3).
-3. Cron diario, ej. `0 5 * * * /ruta/script/pg_backup.sh`.
-4. **Probar una restauración** una vez (requisito ADR-010):
+Backups **cifrados off-site** (ver SECURITY.md §5). Cifrado asimétrico con `age`: el VPS solo
+tiene la clave pública; la privada vive **offline** (tu máquina), así un VPS comprometido no
+expone los backups históricos.
+1. **Offline (tu máquina):** genera el par → `age-keygen -o key.txt`. Guarda `key.txt` (la clave
+   privada) fuera del VPS. La línea `public key: age1...` es el recipient.
+2. **En el VPS:** `apt install age`; exporta `BACKUP_AGE_RECIPIENT=age1...`; copia `script/pg_backup.sh`.
+3. Completar el `TODO` del script: subir **solo el `.age`** a un destino externo (rclone/S3).
+4. Cron diario, ej. `0 5 * * * BACKUP_AGE_RECIPIENT=age1... /ruta/script/pg_backup.sh`.
+5. **Probar una restauración** una vez (requisito ADR-010), con la clave privada offline:
    ```bash
-   gunzip -c oteo-YYYYMMDD.sql.gz | psql oteo_restore_test
+   age -d -i key.txt oteo-YYYYMMDD.sql.gz.age | gunzip | psql oteo_restore_test
    ```
 
 ## 5. Health check post-deploy

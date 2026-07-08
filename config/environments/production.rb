@@ -25,10 +25,12 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
+  # Requerido por proxy.ssl en config/deploy.yml (Kamal termina el SSL y reenvía HTTP). AUD-011.
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  # Va junto a assume_ssl: sin este par, el proxy SSL de Kamal entra en redirect loop. AUD-011.
+  config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }

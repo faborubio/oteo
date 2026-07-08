@@ -120,7 +120,8 @@ Postgres con volumen — ADR-010), `script/pg_backup.sh` (pg_dump comprimido con
 **Pendiente de verificación humana** (requiere el VPS real):
 - [ ] `kamal setup` real sin errores; `db:prepare` crea las 4 bases (primary + cache/queue/cable).
 - [ ] Recurring dispara `SyncAllJob` y `ExpirePlacesDataJob` en producción.
-- [ ] Backup enviado FUERA del VPS + **restauración probada** una vez (requisito ADR-010).
+- [ ] Backup **cifrado** enviado FUERA del VPS + **restauración probada** una vez (requisito ADR-010).
+- [ ] **Checklist de endurecimiento** de [SECURITY.md](SECURITY.md) §3 (firewall/SSH-IAP/IAM/exposición).
 
 ### AUD-012 — Expiración de campos de Places a los 30 días (ADR-006 / AUD-001) 🟢 resuelto
 **Cierre (Fase 3):** `ExpirePlacesDataJob` (recurrente semanal en `config/recurring.yml`)

@@ -35,7 +35,7 @@ OTEO_ADMIN_EMAIL=tu@mail OTEO_ADMIN_PASSWORD=secreto bin/rails db:seed
 | Tests | `bundle exec rspec` |
 | Tests con cobertura | `COVERAGE=true bundle exec rspec` |
 | Lint | `bundle exec rubocop` (autofix: `-A`) |
-| Seguridad | `bin/brakeman --no-pager` · `bin/bundler-audit` |
+| Seguridad | `bin/brakeman --no-pager` · `bin/bundler-audit` · postura: [docs/SECURITY.md](docs/SECURITY.md) |
 | Servidor dev | `bin/dev` (web + watcher de Tailwind) |
 | Consola | `bin/rails console` |
 | Migrar | `bin/rails db:migrate` |
