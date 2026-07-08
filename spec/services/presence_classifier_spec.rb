@@ -43,6 +43,38 @@ RSpec.describe PresenceClassifier do
       expect(classify("https://wa.link/abc123")).to eq("solo_redes")
       expect(classify("https://fresha.com/a/mi-peluqueria")).to eq("solo_redes")
     end
+
+    it "detecta la segunda capa de plataformas del Maule (CASES.md 2026-07-08)" do
+      # AgendaPro: subdominios de reserva para peluquerías/barberías (9 negocios)
+      expect(classify("https://basics.site.agendapro.com/cl")).to eq("solo_redes")
+      expect(classify("https://barberiastatusspa.agendapro.com/cl")).to eq("solo_redes")
+      expect(classify("https://link.agendapro.com/cl/monkeyboss/a5b55420")).to eq("solo_redes")
+      # menú/pedidos/reserva de terceros
+      expect(classify("https://toteat.app/r/cl/Susheria-Constitucion/3908/menu")).to eq("solo_redes")
+      expect(classify("https://sushimax-chl.ola.click/")).to eq("solo_redes")
+      expect(classify("https://oddmenu.com/es/p/takes")).to eq("solo_redes")
+      expect(classify("https://www.restomovil.com/mkt/carta/114_landing.html")).to eq("solo_redes")
+      expect(classify("https://kyte.site/panaderia-villota")).to eq("solo_redes")
+      expect(classify("https://unicas.skedu.com/")).to eq("solo_redes")
+      expect(classify("https://book.heygoldie.com/Guti-Barber10")).to eq("solo_redes")
+      expect(classify("http://pedixwpp.com/alforno")).to eq("solo_redes")
+      # subdominios gratuitos de constructor/host y contenido alojado
+      expect(classify("https://condimento.webnode.es")).to eq("solo_redes")
+      expect(classify("https://campingsueno.wordpress.com")).to eq("solo_redes")
+      expect(classify("https://botilleriablackice.github.io")).to eq("solo_redes")
+      expect(classify("https://drive.google.com/file/d/1_lgyS9/view")).to eq("solo_redes")
+      # link-in-bio / WhatsApp / listado Google
+      expect(classify("https://bio.site/laroccar")).to eq("solo_redes")
+      expect(classify("https://bio.link/tu_farmacia_amiga")).to eq("solo_redes")
+      expect(classify("https://linkinsta.com/piscolima.constitucion")).to eq("solo_redes")
+      expect(classify("https://msha.ke/ameliapasteleria/")).to eq("solo_redes")
+      expect(classify("https://w.app/emporiomadrid")).to eq("solo_redes")
+      expect(classify("https://g.page/r/CYYdRD-5C8R4EAI/review")).to eq("solo_redes")
+      # directorios y agregadores de viaje
+      expect(classify("https://www.mercantil.com/empresa/farmacia-molina/molina/300323147/esp/")).to eq("solo_redes")
+      expect(classify("https://www.booking.com/Share-r4Pu5fy")).to eq("solo_redes")
+      expect(classify("https://www.tripadvisor.com.ar/Restaurant_Review-x.html")).to eq("solo_redes")
+    end
   end
 
   describe "web_propia con dominio propio aunque use un constructor" do

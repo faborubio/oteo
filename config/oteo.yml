@@ -23,6 +23,13 @@ shared:
     - youtube.com
     - beacons.ai
     - wa.link # landing de WhatsApp tipo linktr.ee (CASES.md 2026-07-08)
+    # Segunda auditoría del populate del Maule — link-in-bio / WhatsApp / listado Google (CASES.md 2026-07-08)
+    - bio.site
+    - bio.link
+    - linkinsta.com
+    - msha.ke
+    - w.app # landing de WhatsApp
+    - g.page # link corto al Perfil de Empresa de Google (no es web propia)
 
   # Agregadores de delivery y catálogos de terceros (ADR-003): también solo_redes.
   # Excelente lead: ya pagan comisión por existir online.
@@ -35,6 +42,12 @@ shared:
     - justo.cl
     - fudo.cl
     - fresha.com # plataforma de reservas (peluquerías/spa) — CASES.md 2026-07-08
+    # Segunda auditoría del populate del Maule — directorios y agregadores de viaje (CASES.md 2026-07-08)
+    - mercantil.com # directorio de empresas B2B (3 negocios)
+    - booking.com
+    - tripadvisor.com
+    - tripadvisor.com.ar
+    - tripadvisor.com.pe
 
   # Constructores de sitios y plataformas de menú/QR de terceros: el SUBDOMINIO POR DEFECTO
   # de una plataforma plantilla no es web propia (ADR-003), es lead. Detectados en el sync
@@ -45,6 +58,22 @@ shared:
     - horecaqr.com
     - fu.do # plataforma de menús/gestión para restaurantes (CASES.md 2026-07-08)
     - pedix.app # plataforma de pedidos online (CASES.md 2026-07-08)
+    - pedixwpp.com # variante WhatsApp de Pedix (CASES.md 2026-07-08)
+    # Segunda auditoría del populate del Maule — plataformas de plantilla/menú/reserva y
+    # contenido alojado por terceros. El subdominio por defecto NO es web propia (CASES.md 2026-07-08).
+    - agendapro.com # SaaS de reservas para peluquerías/barberías (9 negocios)
+    - toteat.app # gestión/menú de restaurantes (Chile)
+    - ola.click # pedidos online (Chile)
+    - oddmenu.com # menú digital
+    - restomovil.com # landing/carta de restaurantes
+    - kyte.site # catálogo/tienda plantilla
+    - skedu.com # reservas
+    - heygoldie.com # reservas (barberías)
+    - webnode.com
+    - webnode.es
+    - wordpress.com # subdominio gratuito (WordPress propio con dominio .cl NO matchea)
+    - github.io # GitHub Pages
+    - drive.google.com # archivo alojado (carta en PDF), no sitio propio
     - business.site
     - negocio.site
     - wixsite.com
