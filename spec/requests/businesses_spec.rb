@@ -124,7 +124,9 @@ RSpec.describe "Businesses", type: :request do
     end
 
     it "sin key configurada muestra el fallback, no el mapa" do
-      ENV["GOOGLE_MAPS_JS_API_KEY"] = nil
+      # Sin key desde NINGUNA fuente (ENV ni credentials). Se stubea el helper para no depender
+      # de si hay una key real cargada en credentials del entorno.
+      allow_any_instance_of(ApplicationHelper).to receive(:google_maps_api_key).and_return(nil)
       create(:business, comuna: comuna, user_rating_count: 20, lat: -34.98, lng: -71.23)
 
       get map_businesses_path
