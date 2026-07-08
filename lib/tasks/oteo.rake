@@ -87,6 +87,39 @@ namespace :oteo do
     puts "→ #{Business.count} negocios en total. Entra a / para verlos."
   end
 
+  desc "Populate inicial: corre TODAS las combinaciones AHORA (síncrono, con progreso)"
+  task sync_all_now: :environment do
+    combos = Comuna.active.flat_map { |c| Rubro.active.map { |r| [ c, r ] } }
+    puts "→ #{combos.size} combinaciones (comuna × rubro). Tarda unos minutos, respetando el rate limit…"
+    totals = { found: 0, new: 0, updated: 0, calls: 0, failed: 0 }
+
+    combos.each do |comuna, rubro|
+      SyncJob.perform_now(comuna.id, rubro.id) rescue nil # rubocop:disable Style/RescueModifier
+      run = SyncRun.where(comuna: comuna, rubro: rubro).order(:created_at).last
+      if run&.success?
+        totals[:found] += run.found_count
+        totals[:new] += run.new_count
+        totals[:updated] += run.updated_count
+        totals[:calls] += run.api_calls
+        print "."
+      else
+        totals[:failed] += 1
+        totals[:calls] += (run&.api_calls || 0)
+        print "F"
+        if run&.notes.to_s.include?("CUOTA")
+          puts "\n⚠ Cuota agotada — abortando el populate (driver #2: jamás facturar)."
+          break
+        end
+      end
+      $stdout.flush
+      sleep 1 # respeta el QPS de Places entre combinaciones
+    end
+
+    puts "\n→ Listo: #{totals[:found]} encontrados (#{totals[:new]} nuevos, #{totals[:updated]} " \
+         "actualizados), #{totals[:failed]} combinaciones fallidas, #{totals[:calls]} llamadas este run."
+    puts "   Cuota total del mes: #{SyncRun.api_calls_this_month} / #{Rails.configuration.oteo.places_monthly_quota}"
+  end
+
   desc "Corre un sync AHORA (síncrono), útil para el primer sync real de auditoría"
   task :sync_now, [ :comuna, :rubro ] => :environment do |_t, args|
     comuna = find_comuna!(args[:comuna])

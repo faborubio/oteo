@@ -11,14 +11,23 @@ else
   puts "⚠ Define OTEO_ADMIN_EMAIL y OTEO_ADMIN_PASSWORD para sembrar el usuario"
 end
 
-# --- Comunas objetivo del Maule (6) ---
+# --- Comunas y localidades objetivo del Maule ---
+# Nota: algunas entradas (Gualleco, Iloca, Duao) son localidades dentro de una comuna, no
+# comunas administrativas. Aquí "comuna" es el área de búsqueda del Text Search (foco costero
+# del secano maulino), así que se listan como objetivos de sync propios.
 comunas = [
   "Talca",
   "Curicó",
   "Constitución",
   "Curepto",
   "Molina",
-  "San Clemente"
+  "San Clemente",
+  "Licantén",
+  "Gualleco",
+  "Pencahue",
+  "Iloca",
+  "Duao",
+  "Cauquenes"
 ]
 comunas.each { |name| Comuna.find_or_create_by!(name: name) { |c| c.region = "Maule" } }
 puts "✔ #{Comuna.count} comunas"
