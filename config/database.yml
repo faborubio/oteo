@@ -90,6 +90,7 @@ production:
     database: oteo_production
     username: oteo
     password: <%= ENV["OTEO_DATABASE_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] %> # accessory Postgres vía red docker de kamal (oteo-db)
   cache:
     <<: *primary_production
     database: oteo_production_cache

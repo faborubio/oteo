@@ -53,6 +53,38 @@ module BusinessesHelper
 
   def presence_color(state) = PRESENCE_MARKER_COLOR.fetch(state, "#6b7280")
 
+  # Plantillas de mensaje por estado de presencia (SAD §13 Fase 3). La herramienta prepara
+  # el argumento; el contacto es manual y personalizado (fuera de alcance §1.3, nada de envío
+  # automático). %{name} se interpola con el nombre del negocio.
+  CONTACT_TEMPLATES = {
+    "sin_presencia" => "Hola! Vi %{name} en Google Maps, tienen muy buenas reseñas. Me llamó la " \
+                       "atención que no aparecen con página web al buscarlos en Google. Ayudo a negocios " \
+                       "como el suyo a tener una web simple para que los encuentren más fácil. ¿Le interesaría verla?",
+    "solo_redes" => "Hola! Encontré a %{name} en redes y vi que les va muy bien. Una web propia haría que " \
+                    "no dependan solo del algoritmo de Instagram/Facebook y aparezcan primeros en Google. " \
+                    "¿Le muestro un ejemplo sin compromiso?",
+    "web_propia" => "Hola! Vi la web de %{name}. Además de rediseños, ofrezco un sistema de punto de venta " \
+                    "(POS) simple y económico. ¿Le interesaría que conversemos?",
+    "web_caida" => "Hola! Quise ver la web de %{name} pero no está cargando. Puedo ayudarles a recuperarla " \
+                   "o hacer una nueva, moderna y rápida. ¿Conversamos?"
+  }.freeze
+
+  def contact_template(business)
+    template = CONTACT_TEMPLATES[business.digital_presence] || CONTACT_TEMPLATES["sin_presencia"]
+    format(template, name: business.name)
+  end
+
+  # Link a WhatsApp con el mensaje pre-cargado (wa.me exige solo dígitos con código país).
+  # Places a veces devuelve el teléfono en formato nacional (sin +56): se antepone el código
+  # país de Chile cuando falta (ningún prefijo nacional chileno empieza con 56).
+  def whatsapp_link(business)
+    digits = business.phone.to_s.gsub(/\D/, "")
+    return nil if digits.length < 8
+
+    digits = "56#{digits}" unless digits.start_with?("56")
+    "https://wa.me/#{digits}?text=#{CGI.escape(contact_template(business))}"
+  end
+
   def presence_label(state) = PRESENCE_LABELS.fetch(state, "Sin clasificar")
 
   def presence_badge(state)

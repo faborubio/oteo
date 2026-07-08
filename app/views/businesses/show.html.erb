@@ -50,6 +50,23 @@
       </div>
     <% end %>
 
+    <%# Guion de contacto copiable (SAD §13 Fase 3): la herramienta prepara el mensaje %>
+    <div class="bg-white border border-gray-200 rounded-lg p-5" data-controller="clipboard">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Guion de contacto</h2>
+        <div class="flex gap-2">
+          <button type="button" data-action="clipboard#copy" data-clipboard-target="button"
+                  class="text-xs bg-gray-800 text-white rounded px-3 py-1 hover:bg-gray-700">Copiar</button>
+          <% if (wa = whatsapp_link(@business)) %>
+            <%= link_to "Abrir en WhatsApp", wa, target: "_blank", rel: "noopener",
+                  class: "text-xs bg-emerald-600 text-white rounded px-3 py-1 hover:bg-emerald-700" %>
+          <% end %>
+        </div>
+      </div>
+      <textarea data-clipboard-target="source" rows="4" readonly
+                class="w-full rounded border-gray-200 text-sm bg-gray-50"><%= contact_template(@business) %></textarea>
+    </div>
+
     <%# Historial de contacto (append-only) %>
     <div class="bg-white rounded-lg border border-gray-200 p-5">
       <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Historial</h2>

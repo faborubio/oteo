@@ -117,6 +117,7 @@ class SyncJob < ApplicationJob
     business.types = snapshot.types
     business.business_status = snapshot.business_status
     business.synced_at = Time.current
+    business.places_expired = false # refrescado → ya no está vencido (AUD-012)
   end
 
   # Cierre permanente → archivado automático (ADR-013). Devuelve true solo en la

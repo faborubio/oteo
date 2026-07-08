@@ -99,7 +99,13 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   ficha; AUD-002 resuelto → Plan A). 125 specs verde. **Pendiente operativo:** cargar la Maps
   JS key (`GOOGLE_MAPS_JS_API_KEY`); sin ella el mapa muestra fallback. Deploy Kamal: AUD-011.
   Datos para revisar la UI sin API: `rake oteo:demo_data` (solo dev).
-- **Fase 3 — Operación:** sync quincenal, página de salud, backups probados, guiones.
+- **Fase 3 — Operación: ✅ COMPLETA (falta deploy real).** ✅ Sync programado quincenal
+  (`config/recurring.yml`: `SyncAllJob` día 1 y 15; `ExpirePlacesDataJob` semanal), ✅ **página
+  de salud** `/salud` (cuota mensual vs cupo, vencidos/expirados, jobs fallidos, últimas
+  corridas), ✅ **job de expiración a 30 días** (AUD-012, cumplimiento ToS), ✅ **guiones de
+  contacto** por estado en la ficha (plantilla copiable + "Abrir en WhatsApp" con mensaje
+  pre-cargado). Config de Kamal + backup + `docs/DEPLOY.md` listos. 138 specs verde.
+  ⚠️ **Deploy real pendiente de verificación humana** (AUD-011): necesita el VPS.
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
 
 ## Cierre de fase — Definition of Done (obligatorio)

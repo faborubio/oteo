@@ -67,6 +67,13 @@ class Business < ApplicationRecord
   # Kanban activo: los archivados (cerrados permanentemente) salen del tablero (ADR-013).
   scope :active_pipeline, -> { where.not(pipeline_stage: "archivado") }
 
+  # Datos de Places vencidos (ADR-006): sincronizados hace más de la ventana ToS y
+  # aún no expirados. El sync los refresca; el job de expiración (AUD-012) los nulifica.
+  scope :places_stale, lambda {
+    from_places.where(places_expired: false)
+      .where(synced_at: ..Rails.configuration.oteo.places_retention_days.days.ago)
+  }
+
   # El dato manual manda: si hay pos_status observado, la UI lo muestra (ADR-004).
   def pos_observed?
     !pos_desconocido?

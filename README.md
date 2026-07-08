@@ -134,7 +134,7 @@ pasa a facturación.
 ## Calidad
 
 ```bash
-bundle exec rspec                 # suite completa (125 ejemplos)
+bundle exec rspec                 # suite completa (138 ejemplos)
 COVERAGE=true bundle exec rspec   # con reporte de cobertura
 bundle exec rubocop               # estilo (omakase)
 bin/brakeman --no-pager           # análisis de seguridad estático
@@ -168,7 +168,7 @@ CLAUDE.md         contexto operativo para retomar el proyecto entre sesiones
 | **0 — Cimientos** | Scaffold, toolkit, auth, modelo de datos, adapter Places, taxonomías, CI | ✅ Completa |
 | **1 — Pipeline de datos** | SyncJob idempotente + clasificadores + `sync_runs` | ✅ Completa (falta primer sync real) |
 | **2 — Las tres vistas** | Tabla filtrable, ficha + captura móvil de POS, kanban drag&drop, mapa (Google Maps JS) | ✅ Completa (deploy Kamal pendiente, AUD-011) |
-| **3 — Operación** | Sync programado quincenal, página de salud, backups probados, guiones | ⬜ |
+| **3 — Operación** | Sync programado quincenal, página de salud, expiración ToS, guiones de contacto | ✅ Completa (deploy real pendiente de VPS, AUD-011) |
 | **4 — Solo con tracción** | Verificación HTTP de webs, señal "solo efectivo", recordatorios, producto | ⬜ |
 
 ## Documentación

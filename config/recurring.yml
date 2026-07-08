@@ -13,3 +13,14 @@ production:
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
+
+  # Sync quincenal de todas las combinaciones activas (ADR-005 / Fase 3): día 1 y 15, 03:00.
+  # ("quincenal" no es expresable como intervalo en cron; 1,15 es la forma canónica.)
+  sync_all_biweekly:
+    class: SyncAllJob
+    schedule: "0 3 1,15 * *"
+
+  # Expiración de datos de Places > 30 días para cumplir ToS (AUD-012): lunes 04:00.
+  expire_places_data:
+    class: ExpirePlacesDataJob
+    schedule: "0 4 * * 1"

@@ -113,18 +113,20 @@ API key (browser, restringida por HTTP referrer). El `show` ya expone lat/lng.
 **Plan de pago:** Stimulus controller `map` que carga Google Maps JS, marcadores coloreados por
 `digital_presence`, click → Turbo Frame con la ficha; JSON acotado al filtro activo (NFR §9).
 
-### AUD-011 — Deploy con Kamal no ejecutado 🔴
-**Contexto:** Fase 2 según el SAD termina con "deploy Kamal y salir a terreno". El deploy real
-necesita el VPS, secrets (`RAILS_MASTER_KEY`, registry) y los gates legales despejados. La
-config base de Kamal existe (`config/deploy.yml`, `.kamal/secrets`) pero no se ha desplegado.
-**Plan de pago:** configurar `config/deploy.yml` (host, registry, dominio), cargar secrets y
-correr `kamal setup`; probar el `pg_dump` de backup (ADR-010) una vez.
+### AUD-011 — Deploy con Kamal: config lista, NO validada contra VPS 🟡
+**Estado (Fase 3):** `config/deploy.yml` configurado (proxy/SSL, registry, env, accessory
+Postgres con volumen — ADR-010), `script/pg_backup.sh` (pg_dump comprimido con retención) y
+`docs/DEPLOY.md` con el paso a paso. Todo con placeholders `TODO(deploy)`.
+**Pendiente de verificación humana** (requiere el VPS real):
+- [ ] `kamal setup` real sin errores; `db:prepare` crea las 4 bases (primary + cache/queue/cable).
+- [ ] Recurring dispara `SyncAllJob` y `ExpirePlacesDataJob` en producción.
+- [ ] Backup enviado FUERA del VPS + **restauración probada** una vez (requisito ADR-010).
 
-### AUD-012 — Expiración de campos de Places a los 30 días (ADR-006 / AUD-001) 🔴
-**Contexto:** los ToS obligan a **borrar** el contenido de Places (nombre, rating, teléfono,
-lat/lng…) cacheado más de 30 días; solo `place_id` es permanente. El sync quincenal refresca
-los negocios que reaparecen en resultados, pero uno que deja de aparecer (cerró, cambió de
-rubro, cayó del corte) envejecería sus campos sin borrarse → incumplimiento silencioso.
-**Plan de pago (Fase 3):** job recurrente que nulifica los campos de Places (no el `place_id`
-ni el dato propio) de registros con `synced_at` > 30 días; la UI ya tolera "dato vencido".
-Va de la mano con la página de salud y el sync programado de Fase 3.
+### AUD-012 — Expiración de campos de Places a los 30 días (ADR-006 / AUD-001) 🟢 resuelto
+**Cierre (Fase 3):** `ExpirePlacesDataJob` (recurrente semanal en `config/recurring.yml`)
+nulifica los campos perecibles de Places de los registros con `synced_at` > ventana ToS,
+marcando `places_expired`. Conserva `place_id`, identificación mínima (nombre/dirección) y
+TODO el dato propio. El sync repuebla y resetea el flag al reencontrar el negocio.
+**Nota de interpretación:** se conserva nombre/dirección como identificación mínima del lead
+operativo (zona gris de los ToS para una herramienta interna); el resto del contenido de
+Places se borra. La página de salud muestra "vencidos" (por refrescar) y "expirados".

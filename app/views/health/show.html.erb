@@ -1,0 +1,83 @@
+<% content_for :title, "Salud — Oteo" %>
+
+<h1 class="text-xl font-bold mb-4">Salud del sistema</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <%# Cuota mensual de Places (driver #2: jamás facturar) %>
+  <div class="bg-white rounded-lg border border-gray-200 p-5">
+    <div class="text-xs text-gray-500 uppercase tracking-wide">Cuota Places (mes)</div>
+    <div class="text-3xl font-bold tabular-nums <%= quota_text_class(@quota_pct) %>">
+      <%= @api_calls_month %><span class="text-lg text-gray-400"> / <%= @quota %></span>
+    </div>
+    <div class="mt-2 h-2 rounded bg-gray-100 overflow-hidden">
+      <div class="h-full <%= quota_bar_class(@quota_pct) %>" style="width: <%= [ @quota_pct, 100 ].min %>%"></div>
+    </div>
+    <div class="text-xs text-gray-500 mt-1"><%= @quota_pct %>% del cupo Enterprise gratuito</div>
+  </div>
+
+  <%# Datos vencidos por ToS %>
+  <div class="bg-white rounded-lg border border-gray-200 p-5">
+    <div class="text-xs text-gray-500 uppercase tracking-wide">Datos de Places</div>
+    <div class="text-3xl font-bold tabular-nums <%= @stale_count.positive? ? 'text-yellow-700' : 'text-gray-800' %>">
+      <%= @stale_count %>
+    </div>
+    <div class="text-xs text-gray-500 mt-1">
+      vencidos por refrescar (> <%= Rails.configuration.oteo.places_retention_days %> días)<br>
+      <%= @expired_count %> ya expirados (contenido borrado, ToS)
+    </div>
+  </div>
+
+  <%# Jobs fallidos %>
+  <div class="bg-white rounded-lg border border-gray-200 p-5">
+    <div class="text-xs text-gray-500 uppercase tracking-wide">Syncs fallidos (mes)</div>
+    <div class="text-3xl font-bold tabular-nums <%= @failed_runs.positive? ? 'text-red-700' : 'text-gray-800' %>">
+      <%= @failed_runs %>
+    </div>
+    <div class="text-xs text-gray-500 mt-1"><%= @total_businesses %> negocios en total</div>
+  </div>
+</div>
+
+<%# Desglose por presencia %>
+<div class="bg-white rounded-lg border border-gray-200 p-5 mb-6">
+  <div class="text-xs text-gray-500 uppercase tracking-wide mb-2">Por presencia digital</div>
+  <div class="flex flex-wrap gap-4">
+    <% %w[sin_presencia solo_redes web_propia web_caida].each do |state| %>
+      <span class="flex items-center gap-1.5 text-sm">
+        <span class="inline-block w-3 h-3 rounded-full" style="background: <%= presence_color(state) %>"></span>
+        <%= presence_label(state) %>: <strong><%= @by_presence[state] || 0 %></strong>
+      </span>
+    <% end %>
+  </div>
+</div>
+
+<%# Últimas corridas de sync (auditoría de cuota) %>
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+  <div class="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">Últimas corridas</div>
+  <table class="min-w-full divide-y divide-gray-100 text-sm">
+    <thead class="bg-gray-50 text-gray-500 text-xs">
+      <tr>
+        <th class="px-4 py-2 text-left">Cuándo</th>
+        <th class="px-4 py-2 text-left">Combinación</th>
+        <th class="px-4 py-2 text-left">Estado</th>
+        <th class="px-4 py-2 text-right">Encontrados</th>
+        <th class="px-4 py-2 text-right">Nuevos</th>
+        <th class="px-4 py-2 text-right">Llamadas</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @recent_runs.each do |run| %>
+        <tr>
+          <td class="px-4 py-2 text-gray-500"><%= l(run.created_at, format: :short) %></td>
+          <td class="px-4 py-2"><%= run.comuna.name %> × <%= run.rubro.label %></td>
+          <td class="px-4 py-2"><%= sync_status_badge(run.status) %></td>
+          <td class="px-4 py-2 text-right tabular-nums"><%= run.found_count %></td>
+          <td class="px-4 py-2 text-right tabular-nums"><%= run.new_count %></td>
+          <td class="px-4 py-2 text-right tabular-nums"><%= run.api_calls %></td>
+        </tr>
+      <% end %>
+      <% if @recent_runs.empty? %>
+        <tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Sin corridas de sync todavía.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -17,6 +17,9 @@ Rails.application.routes.draw do
   get "kanban" => "kanban#index"
   patch "kanban/:id" => "kanban#update", as: :kanban_business
 
+  # Página de salud interna (SAD §8): cuota, vencidos, jobs fallidos.
+  get "salud" => "health#show", as: :health
+
   root "businesses#index"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

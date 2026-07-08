@@ -32,6 +32,7 @@
             <%= link_to "Leads", businesses_path, class: nav_link_class(controller_name == "businesses" && action_name != "map") %>
             <%= link_to "Mapa", map_businesses_path, class: nav_link_class(action_name == "map") %>
             <%= link_to "Kanban", kanban_path, class: nav_link_class(controller_name == "kanban") %>
+            <%= link_to "Salud", health_path, class: nav_link_class(controller_name == "health") %>
           </div>
           <%= button_to "Salir", session_path, method: :delete,
                 class: "text-sm text-gray-500 hover:text-gray-800" %>

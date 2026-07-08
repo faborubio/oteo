@@ -90,6 +90,9 @@ shared:
       web_propia: 0.0
     pos_candidate_bonus: 1.25
 
-  # Ventana de retención de datos de Places en días (ADR-006).
-  # ⚠️ Gate de Fase 0: VERIFICAR el valor vigente en los ToS antes de confiar en él.
+  # Ventana de retención de datos de Places en días (ADR-006). Verificado 2026-07-07: 30 días.
   places_retention_days: 30
+
+  # Cupo mensual gratuito del SKU más restrictivo (Enterprise) — AUD-003, verificado 2026-07-07.
+  # La página de salud alerta al acercarse. El driver #2 manda: jamás pasar a facturación.
+  places_monthly_quota: 1000
