@@ -37,6 +37,11 @@ RSpec.describe PresenceClassifier do
       expect(classify("https://minegocio.business.site")).to eq("solo_redes")
       # cartas.horecaqr.com — plataforma de menús QR (caso real Curicó)
       expect(classify("https://cartas.horecaqr.com/c/trattorialapasta")).to eq("solo_redes")
+      # plataformas detectadas en el populate del Maule (CASES.md 2026-07-08)
+      expect(classify("https://menu.fu.do/mirestaurant")).to eq("solo_redes")
+      expect(classify("https://mirestaurant.pedix.app")).to eq("solo_redes")
+      expect(classify("https://wa.link/abc123")).to eq("solo_redes")
+      expect(classify("https://fresha.com/a/mi-peluqueria")).to eq("solo_redes")
     end
   end
 

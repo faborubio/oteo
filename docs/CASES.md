@@ -28,6 +28,22 @@ Formato: `| URI / señal | Clasificación decidida | Razón | Fecha |`
 | `cartas.horecaqr.com/c/trattorialapasta` | `web_propia` | **`solo_redes`** | **HorecaQR** es una plataforma de **menús QR** multi-tenant (una ficha por restaurante). No es web propia. Se agrega `horecaqr.com` a `site_builder_domains`. |
 | `malldecurico.cl/tiendas/mamut/` | `web_propia` | **limitación conocida** | Es una ficha en el **directorio de un mall**, no el sitio del negocio. No generalizable por lista (cada mall es un dominio distinto). Detectarlo pide heurística de "página de directorio" → ligado a **AUD-008** (verificación HTTP, Fase 4). Por ahora queda como falso `web_propia`. |
 
+### Populate del Maule — 2026-07-08 (n=2257, 12 comunas)
+70% `sin_presencia` (1595), 16% `web_propia` (352), 14% `solo_redes` (310). Auditados los
+hosts de `web_propia`: las cadenas (cruzverde.cl, drsimi.cl, salcobrand.cl, unimarc.cl, lider.cl,
+copec…) quedan BIEN como web_propia — no son leads y score 0 los entierra correctamente. Cuatro
+plataformas de terceros se colaban como falso `web_propia` (leads enterrados):
+
+| URI / señal | Antes | Decidido | Razón |
+|---|---|---|---|
+| `menu.fu.do/...` | `web_propia` | **`solo_redes`** | **Fu.do**: plataforma de menús/gestión para restaurantes. → `fu.do` a `site_builder_domains`. |
+| `*.pedix.app` | `web_propia` | **`solo_redes`** | **Pedix**: plataforma de pedidos online. → `pedix.app` a `site_builder_domains`. |
+| `wa.link/...` | `web_propia` | **`solo_redes`** | Landing de WhatsApp (tipo linktr.ee). → `wa.link` a `social_domains`. |
+| `fresha.com/...` | `web_propia` | **`solo_redes`** | **Fresha**: plataforma de reservas (peluquerías/spa). → `fresha.com` a `aggregator_domains`. |
+
+**Cadenas nacionales** (cruzverde.cl, drsimi.cl, unimarc.cl…): correctamente `web_propia`; NO
+son leads (no se les vende web a una sucursal). Score 0 los saca del ranking — comportamiento correcto.
+
 **Watchlist de constructores** (agregar cuando aparezcan con URI real): `myshopify.com`,
 `square.site`, `webflow.io`, `netlify.app`, `vercel.app`, `wordpress.com`, `blogspot.com`.
 Ojo: solo el **subdominio por defecto** del constructor es señal; si el negocio usa el mismo

@@ -22,6 +22,7 @@ shared:
     - x.com
     - youtube.com
     - beacons.ai
+    - wa.link # landing de WhatsApp tipo linktr.ee (CASES.md 2026-07-08)
 
   # Agregadores de delivery y catálogos de terceros (ADR-003): también solo_redes.
   # Excelente lead: ya pagan comisión por existir online.
@@ -33,6 +34,7 @@ shared:
     - ubereats.com
     - justo.cl
     - fudo.cl
+    - fresha.com # plataforma de reservas (peluquerías/spa) — CASES.md 2026-07-08
 
   # Constructores de sitios y plataformas de menú/QR de terceros: el SUBDOMINIO POR DEFECTO
   # de una plataforma plantilla no es web propia (ADR-003), es lead. Detectados en el sync
@@ -41,6 +43,8 @@ shared:
   site_builder_domains:
     - ueniweb.com
     - horecaqr.com
+    - fu.do # plataforma de menús/gestión para restaurantes (CASES.md 2026-07-08)
+    - pedix.app # plataforma de pedidos online (CASES.md 2026-07-08)
     - business.site
     - negocio.site
     - wixsite.com
