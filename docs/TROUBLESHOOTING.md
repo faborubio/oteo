@@ -72,6 +72,39 @@ Verificado con una llamada real de key inválida: devuelve `Result` con error HT
 **Causa:** anti-bot; el sitio está vivo pero bloquea. **No** es `web_caida` (ADR-003).
 **Fix:** solo DNS/timeout/5xx marcan `web_caida`; 403/405 se reintenta o se ignora.
 
+---
+
+## Deploy real (AUD-011, 2026-07-09)
+
+### `Permission denied (API_KEY_IP_ADDRESS_BLOCKED)` con la IP correcta autorizada
+**Qué pasó:** el primer sync real falló con 403 pese a haber autorizado la IPv4 pública en la
+restricción de la Places key.
+**Por qué:** la conexión es dual-stack y salió por **IPv6** con extensiones de privacidad (el
+sufijo rota; el prefijo /64 es estable). Google vio la IPv6, no la IPv4 autorizada.
+**Fix:** autorizar el **prefijo `/64`** de la IPv6 (no la dirección exacta) además de la IPv4.
+En producción no aplica: la VM tiene IP estática y es la única autorizada.
+
+### Upload del backup a GCS → `HTTP 403` con el scope correcto
+**Qué pasó:** la VM tenía scope `devstorage.read_write` pero el upload devolvía 403.
+**Por qué:** scope ≠ IAM: el scope limita lo que la VM *puede pedir*; el rol IAM define lo que
+la service account *tiene permitido*. En proyectos GCP nuevos, el SA default de Compute ya no
+recibe roles automáticos.
+**Fix:** rol **Storage Object Admin** otorgado al SA, **acotado al bucket** (mínimo privilegio,
+SECURITY.md §3). Nota: cambiar el *scope* requiere detener/arrancar la VM; el *rol* no.
+
+### Restauración del backup con `ERROR: role "oteo" does not exist` (cosmético)
+**Qué pasó:** al restaurar el dump en la máquina local, decenas de errores de rol; los datos
+entraron completos igual.
+**Por qué:** el dump incluía `OWNER TO oteo` y el rol solo existe en producción.
+**Fix:** `pg_dump --no-owner --no-acl` en `script/pg_backup.sh` → restauraciones limpias en
+cualquier rol.
+
+### `bin/dev` muere solo a los segundos de arrancar (dev)
+**Qué pasó:** foreman envía SIGTERM a todo si *cualquier* proceso del Procfile termina; el
+watcher de Tailwind (`css`) salió con código 0 y tumbó al server web.
+**Fix operativo:** para revisar la UI sin tocar CSS basta `bin/rails server`. Si pasa de nuevo
+con `bin/dev`, revisar por qué el watcher de Tailwind sale (versión del gem / inotify en WSL).
+
 <!--
 Plantilla de postmortem (falla con impacto real):
 ### [FECHA] Título del incidente

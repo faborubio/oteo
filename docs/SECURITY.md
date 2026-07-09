@@ -28,21 +28,21 @@ Probabilidad e impacto en Baja / Media / Alta. Enlaza con los `AUD-NNN` y ADR qu
 | R6 | **Agotar cuota / pasar a facturación** | Baja | Media | Cupo 1000/mes vigilado en `/salud` + budget alert + el sync aborta al agotar cuota (driver #2: jamás facturar). | AUD-003 |
 
 ## 3. Endurecimiento pre-deploy (checklist)
-Aplicar al provisionar el VPS (GCE). Marca al completar en el primer `kamal setup` (AUD-011).
-- [ ] **Firewall GCP:** default-deny inbound. Abrir solo **443** (y **80** para el challenge de
-      Let's Encrypt). **NUNCA abrir 5432** — Postgres queda bindeado a `127.0.0.1` (ver `deploy.yml`).
-- [ ] **SSH:** solo con llave (password auth off). Preferible **IAP TCP forwarding** de GCP para
-      sacar el puerto 22 del internet público. Si no, `fail2ban`.
-- [ ] **GCP IAM:** service account de la VM con **mínimo privilegio** (no la default con scopes amplios).
-- [ ] **Exposición:** decidir Camino A (DuckDNS + Let's Encrypt público, login endurecido) vs
-      Camino B (**Tailscale**, sin login público). Para 1 usuario, B minimiza superficie.
-- [ ] **Password de la app:** fuerte y única (cambiar cualquier clave temporal de dev).
-- [ ] **Secrets:** `.kamal/secrets` jamás con valores crudos; salen de ENV/gestor. `master.key`
-      nunca en git. `POSTGRES_PASSWORD` = `OTEO_DATABASE_PASSWORD`, random y fuerte.
-- [ ] **Backup cifrado:** definir `BACKUP_AGE_RECIPIENT` (clave pública age); la privada vive
-      **fuera del VPS** (ver §5). Completar el destino off-site en `script/pg_backup.sh`.
-- [ ] **Registry token:** scope mínimo (solo la imagen de Oteo).
-- [ ] **Pre-lanzamiento (opcional, barato):** un scan **OWASP ZAP baseline** contra la URL.
+Aplicado en el primer `kamal setup` (AUD-011, 2026-07-09):
+- [x] **Firewall GCP:** solo 22/80/443 inbound. 5432 cerrado — Postgres bindeado a `127.0.0.1`.
+- [x] **SSH:** solo con llave ed25519 (GCE deshabilita password auth). ⚠️ El 22 sigue público
+      (regla default de GCP) — **IAP pendiente como AUD-013** (riesgo bajo, llave obligatoria).
+- [x] **GCP IAM:** el SA default de Compute quedó sin roles de proyecto; se le dio **solo**
+      Storage Object Admin **acotado al bucket** de backups. Scope `devstorage.read_write`.
+- [x] **Exposición:** Camino A (DuckDNS + Let's Encrypt público) con login rate-limited y
+      `force_ssl`. Tailscale (Camino B) queda como opción futura si aparece ruido de bots.
+- [x] **Password de la app:** fuerte, distinta a dev, seteada por el autor en el seed.
+- [x] **Secrets:** `.kamal/secrets` solo referencia (valores en `.env` gitignoreado y en Rails
+      credentials). `master.key` fuera de git. `POSTGRES_PASSWORD` random de 48 hex.
+- [x] **Backup cifrado:** age asimétrico; pública en el cron de la VM, **privada offline** en
+      `~/.oteo-backup-age.key` de la máquina local (respaldarla aparte). Off-site: GCS.
+- [x] **Registry token:** PAT classic solo con `write:packages`/`read:packages`.
+- [ ] **Pre-lanzamiento (opcional, barato):** scan **OWASP ZAP baseline** contra la URL.
 
 ## 4. Runbook de incidentes (si X → haz Y)
 | Síntoma / evento | Respuesta inmediata |

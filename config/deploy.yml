@@ -2,13 +2,13 @@
 service: oteo
 
 # Name of the container image (use your-user/app-name on external registries).
-image: oteo
+image: faborubio/oteo
 
 # Deploy to these servers.
-# TODO(deploy): reemplazar por la IP del VPS (AUD-011).
+# VM e2-small en GCE southamerica-west1 (Santiago), IP estática (AUD-011).
 servers:
   web:
-    - 192.168.0.1
+    - 34.176.45.178
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
 # If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
@@ -17,16 +17,16 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-# SSL automático (Let's Encrypt). TODO(deploy): apuntar el dominio al VPS antes de desplegar.
+# SSL automático (Let's Encrypt). El dominio ya apunta a la IP estática (DuckDNS).
 proxy:
   ssl: true
-  host: oteo.example.cl # TODO(deploy): dominio real (AUD-011)
+  host: oteo.duckdns.org
 
 # Where you keep your container images.
 registry:
   # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: ghcr.io # TODO(deploy): registry real
-  username: faborubio # TODO(deploy): usuario del registry
+  server: ghcr.io
+  username: faborubio
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -74,9 +74,9 @@ builder:
   #   - GITHUB_TOKEN
   #   - RAILS_MASTER_KEY
 
-# Use a different ssh user than root
-# ssh:
-#   user: app
+# Usuario SSH de la VM (creado por la llave en metadata de GCE; tiene sudo y grupo docker).
+ssh:
+  user: faborubio
 
 # PostgreSQL en contenedor con volumen persistente (ADR-010). El dato propio es el activo:
 # el backup diario (script/pg_backup.sh) lo protege; los datos de Google se re-sincronizan.
@@ -84,7 +84,7 @@ builder:
 accessories:
   db:
     image: postgres:16
-    host: 192.168.0.1 # TODO(deploy): mismo VPS que la web
+    host: 34.176.45.178 # mismo VPS que la web
     port: "127.0.0.1:5432:5432"
     env:
       clear:

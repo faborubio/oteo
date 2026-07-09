@@ -41,7 +41,8 @@ OTEO_ADMIN_EMAIL=tu@mail OTEO_ADMIN_PASSWORD=secreto bin/rails db:seed
 | Migrar | `bin/rails db:migrate` |
 | Seed (idempotente) | `bin/rails db:seed` |
 | Datos demo (dev) | `bin/rails oteo:demo_data` |
-| Deploy | `kamal deploy` (pendiente, AUD-011) |
+| Deploy | `bundle exec kamal deploy` → https://oteo.duckdns.org (runbook: [docs/DEPLOY.md](docs/DEPLOY.md)) |
+| Consola prod | `bundle exec kamal console` · logs: `bundle exec kamal logs` |
 
 ## Configuración de dominio
 - `config/oteo.yml` → dominios sociales, agregadores, acortadores (ADR-003), pesos del
@@ -83,8 +84,9 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
     AUD-001 🟢 caché Places = 30 días, `place_id` indefinido (falta job de expiración, AUD-012).
     AUD-003 🟢 cupos por SKU confirmados, uso Enterprise ~144/1.000 mensuales. AUD-002 🟢
     **decisión: mapa con Google Maps JS API** (plotea Places + manuales sin violar ToS).
-    AUD-004 🟢 marca "Oteo" libre en INAPI; dominio no bloquea. **Pendiente: conseguir la
-    Places API key (server, IP-restringida) y la Maps JS key (browser, referrer-restringida).**
+    AUD-004 🟢 marca "Oteo" libre en INAPI; dominio no bloquea. **Keys conseguidas y operativas
+    (2026-07-08):** Places (server, IP-restringida) y Maps JS (browser, referrer-restringida),
+    ambas en credentials cifradas (`google.*`).
 - **Fase 1 — Pipeline de datos: ✅ COMPLETA.** `SyncJob(comuna, rubro)` idempotente +
   clasificadores (presencia ADR-003, pos_candidate ADR-004, lead_score ADR-008) + `sync_runs`
   + rake tasks (sync/audit/reclassify). **Primer sync real hecho** (Curicó × restaurantes,
@@ -96,16 +98,18 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   carriles reputación vs. nuevos, Turbo Frame + Pagy), ✅ ficha con guion de venta por estado
   + captura móvil de `pos_status` (Turbo Stream) + historial de `contact_events`, ✅ kanban
   drag&drop (SortableJS), ✅ **mapa Google Maps JS** (marcadores por presencia, infowindow →
-  ficha; AUD-002 resuelto → Plan A). 125 specs verde. **Pendiente operativo:** cargar la Maps
-  JS key (`GOOGLE_MAPS_JS_API_KEY`); sin ella el mapa muestra fallback. Deploy Kamal: AUD-011.
-  Datos para revisar la UI sin API: `rake oteo:demo_data` (solo dev).
-- **Fase 3 — Operación: ✅ COMPLETA (falta deploy real).** ✅ Sync programado quincenal
+  ficha; AUD-002 resuelto → Plan A). 125 specs verde. Maps JS key operativa (mapa verificado
+  en dev y producción). Datos para revisar la UI sin API: `rake oteo:demo_data` (solo dev).
+- **Fase 3 — Operación: ✅ COMPLETA, EN PRODUCCIÓN.** ✅ Sync programado quincenal
   (`config/recurring.yml`: `SyncAllJob` día 1 y 15; `ExpirePlacesDataJob` semanal), ✅ **página
-  de salud** `/salud` (cuota mensual vs cupo, vencidos/expirados, jobs fallidos, últimas
-  corridas), ✅ **job de expiración a 30 días** (AUD-012, cumplimiento ToS), ✅ **guiones de
-  contacto** por estado en la ficha (plantilla copiable + "Abrir en WhatsApp" con mensaje
-  pre-cargado). Config de Kamal + backup + `docs/DEPLOY.md` listos. 138 specs verde.
-  ⚠️ **Deploy real pendiente de verificación humana** (AUD-011): necesita el VPS.
+  de salud** `/salud`, ✅ **job de expiración a 30 días** (AUD-012), ✅ **guiones de contacto**
+  por estado en la ficha. 139 specs verde.
+  **🚀 DESPLEGADO el 2026-07-09 (AUD-011 🟢):** https://oteo.duckdns.org en VM GCE `e2-small`
+  (Santiago, IP estática 34.176.45.178, crédito de prueba — permanencia: AUD-014). Primer sync
+  de producción: 96/96 combinaciones, 2237 negocios, 180 llamadas. Backup diario cifrado (age)
+  a GCS con **restauración probada** (ADR-010 ✓). Postura de seguridad: [docs/SECURITY.md](docs/SECURITY.md)
+  (deuda residual: AUD-013 SSH público, AUD-014 permanencia GCE). Ambas API keys operativas
+  (Places IP-restringida a la VM; Maps JS con referrer localhost + oteo.duckdns.org).
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
 
 ## Cierre de fase — Definition of Done (obligatorio)

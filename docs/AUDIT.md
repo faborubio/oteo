@@ -113,15 +113,37 @@ API key (browser, restringida por HTTP referrer). El `show` ya expone lat/lng.
 **Plan de pago:** Stimulus controller `map` que carga Google Maps JS, marcadores coloreados por
 `digital_presence`, click → Turbo Frame con la ficha; JSON acotado al filtro activo (NFR §9).
 
-### AUD-011 — Deploy con Kamal: config lista, NO validada contra VPS 🟡
-**Estado (Fase 3):** `config/deploy.yml` configurado (proxy/SSL, registry, env, accessory
-Postgres con volumen — ADR-010), `script/pg_backup.sh` (pg_dump comprimido con retención) y
-`docs/DEPLOY.md` con el paso a paso. Todo con placeholders `TODO(deploy)`.
-**Pendiente de verificación humana** (requiere el VPS real):
-- [ ] `kamal setup` real sin errores; `db:prepare` crea las 4 bases (primary + cache/queue/cable).
-- [ ] Recurring dispara `SyncAllJob` y `ExpirePlacesDataJob` en producción.
-- [ ] Backup **cifrado** enviado FUERA del VPS + **restauración probada** una vez (requisito ADR-010).
-- [ ] **Checklist de endurecimiento** de [SECURITY.md](SECURITY.md) §3 (firewall/SSH-IAP/IAM/exposición).
+### AUD-011 — Deploy con Kamal 🟢 PAGADO (2026-07-09, producción real)
+**Cierre:** desplegado en una VM GCE `e2-small` (`southamerica-west1`, Santiago; crédito de
+prueba, decidir permanencia ~día 50), IP estática `34.176.45.178`, dominio `oteo.duckdns.org`
+(DuckDNS gratis), registry ghcr.io, SSH como usuario no-root con llave. Verificado:
+- [x] `kamal setup` sin errores (~27 min primer build); `/up` → 200 con SSL Let's Encrypt válido,
+      http→https sin loop (gracias a `assume_ssl`+`force_ssl` activados a tiempo).
+- [x] `db:prepare` creó las 4 bases (primary + cache/queue/cable).
+- [x] Recurring registrado (SyncAllJob 1 y 15, ExpirePlacesDataJob lunes) **y SyncAllJob corrió
+      en producción** (disparo manual: 96/96 combinaciones success, 2237 negocios, 180 llamadas).
+- [x] Backup **cifrado (age, clave pública en la VM, privada offline)** subido a
+      `gs://oteo-backups-501721` vía metadata token (cero credenciales en disco), cron diario
+      01:00 Chile, **restauración probada** (bucket → descifrado local → 2237 negocios) — ADR-010 ✓.
+- [x] Endurecimiento SECURITY.md §3: firewall solo 22/80/443, Postgres en localhost, SSH solo
+      llave, IAM del SA restringido a objetos del bucket.
+**Deuda residual → AUD-013** (SSH público) y **AUD-014** (permanencia GCE).
+
+### AUD-013 — SSH (puerto 22) abierto al mundo, sin IAP 🔴
+**Contexto:** la VM usa la regla `default-allow-ssh` de GCP (22 público). Mitigado: solo auth
+por llave (GCE deshabilita password). SECURITY.md §3 recomienda IAP TCP forwarding (saca el 22
+de internet) — no se configuró en el primer deploy para no sumar fricción.
+**Plan de pago:** configurar IAP o restringir la regla de firewall a IPs conocidas; evaluar
+también fail2ban. Bajo riesgo real (llave ed25519), prioridad baja.
+
+### AUD-014 — Permanencia del hosting: crédito GCE expira ~2026-09-02 🔴
+**Contexto:** la VM corre con el crédito de prueba de GCP (90 días desde ~2026-06-04; quedaban
+56 el 2026-07-08). Al expirar, GCE factura (~US$14/mes e2-small) — más caro que un VPS de
+presupuesto (Hetzner ~€4.5/mes).
+**Plan de pago (~día 50, ±2026-08-25):** decidir quedarse (habilitar facturación con budget
+alert) o migrar: con Kamal es cambiar IP en `deploy.yml` + `kamal setup` + repuntar DuckDNS y
+la restricción IP de la Places key (~30 min). El backup off-site vive en GCS: si se abandona
+GCP, mover también el destino del backup.
 
 ### AUD-012 — Expiración de campos de Places a los 30 días (ADR-006 / AUD-001) 🟢 resuelto
 **Cierre (Fase 3):** `ExpirePlacesDataJob` (recurrente semanal en `config/recurring.yml`)
