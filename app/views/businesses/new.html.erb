@@ -1,0 +1,60 @@
+<% content_for :title, "Agregar negocio — Oteo" %>
+
+<div class="max-w-lg mx-auto">
+  <h1 class="text-xl font-bold mb-1">Agregar negocio</h1>
+  <p class="text-sm text-gray-500 mb-4">
+    Para negocios que Google Places no lista (ADR-012). Parte con 0 reseñas →
+    aparece en el carril <strong>Nuevos / sin reputación</strong>.
+  </p>
+
+  <%= form_with model: @business, class: "bg-white rounded-lg border border-gray-200 p-5 space-y-4" do |f| %>
+    <% if @business.errors.any? %>
+      <div class="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
+        <%= @business.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :name, "Nombre *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :name, required: true, autofocus: true, placeholder: "Almacén Doña Rosa",
+            class: "w-full rounded border-gray-300 text-sm" %>
+    </div>
+
+    <div>
+      <%= f.label :comuna_id, "Comuna *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.collection_select :comuna_id, @comunas, :id, :name, { prompt: "Elige la comuna" },
+            { required: true, class: "w-full rounded border-gray-300 text-sm" } %>
+    </div>
+
+    <div>
+      <%= f.label :rubro_ids, "Rubro", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%# name como array: rubro_ids= espera colección (n:m); AR ignora los blanks. %>
+      <%= f.collection_select :rubro_ids, @rubros, :id, :label, { include_blank: "Sin rubro (opcional)" },
+            { class: "w-full rounded border-gray-300 text-sm", name: "business[rubro_ids][]" } %>
+    </div>
+
+    <div>
+      <%= f.label :address, "Dirección", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :address, placeholder: "Calle y número (opcional)",
+            class: "w-full rounded border-gray-300 text-sm" %>
+    </div>
+
+    <div>
+      <%= f.label :phone, "Teléfono", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.telephone_field :phone, placeholder: "+56 9 ... (opcional)",
+            class: "w-full rounded border-gray-300 text-sm" %>
+    </div>
+
+    <div>
+      <%= f.label :website_uri, "Sitio web o red social", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.url_field :website_uri, placeholder: "https://... (vacío = sin presencia)",
+            class: "w-full rounded border-gray-300 text-sm" %>
+      <p class="mt-1 text-xs text-gray-400">Se clasifica solo: vacío → sin presencia; Instagram/Facebook → solo redes.</p>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <%= f.submit "Agregar al pipeline", class: "bg-emerald-600 text-white text-sm font-medium rounded px-4 py-2 hover:bg-emerald-700 cursor-pointer" %>
+      <%= link_to "Cancelar", businesses_path, class: "text-sm text-gray-500 hover:text-gray-800" %>
+    </div>
+  <% end %>
+</div>

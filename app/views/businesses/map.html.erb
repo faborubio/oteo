@@ -6,7 +6,9 @@
 </div>
 
 <%# Mismos filtros que la tabla; recarga completa para re-plotear los marcadores %>
-<%= form_with url: map_businesses_path, method: :get, class: "grid grid-cols-2 md:grid-cols-5 gap-3 mb-4 bg-white p-4 rounded-lg border border-gray-200" do |f| %>
+<%= form_with url: map_businesses_path, method: :get, class: "grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 bg-white p-4 rounded-lg border border-gray-200" do |f| %>
+  <%= f.search_field :q, value: params[:q], placeholder: "Buscar por nombre…",
+        class: "col-span-2 md:col-span-1 rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
   <%= f.select :comuna_id, options_from_collection_for_select(@comunas, :id, :name, params[:comuna_id]),
         { include_blank: "Todas las comunas" }, class: "rounded border-gray-300 text-sm", onchange: "this.form.requestSubmit()" %>
   <%= f.select :presence,

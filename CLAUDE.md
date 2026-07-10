@@ -110,6 +110,11 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   a GCS con **restauración probada** (ADR-010 ✓). Postura de seguridad: [docs/SECURITY.md](docs/SECURITY.md)
   (deuda residual: AUD-013 SSH público, AUD-014 permanencia GCE). Ambas API keys operativas
   (Places IP-restringida a la VM; Maps JS con referrer localhost + oteo.duckdns.org).
+- **Post-producción (2026-07-10, feedback de los socios — ahora son 2 cuentas / 3 personas):**
+  ✅ buscador por nombre en tabla y mapa (extensión `unaccent`: insensible a tildes; con búsqueda
+  activa se cruzan ambos carriles), ✅ **alta manual de negocios** (`new/create`, ADR-012 por fin
+  con UI: clasifica al crear, evento `sistema`, parte en carril "nuevos"), ✅ paginación estilizada
+  (`pagy_styled_nav`: página actual notoria, targets táctiles). 145 specs verde.
 - **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
 
 ## Cierre de fase — Definition of Done (obligatorio)

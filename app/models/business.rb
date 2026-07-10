@@ -74,6 +74,12 @@ class Business < ApplicationRecord
       .where(synced_at: ..Rails.configuration.oteo.places_retention_days.days.ago)
   }
 
+  # Búsqueda por nombre insensible a mayúsculas y tildes ("panaderia" → "Panadería").
+  # Consulta local a Postgres (extensión unaccent): cero llamadas a la API.
+  def self.search_name(query)
+    where("unaccent(businesses.name) ILIKE unaccent(?)", "%#{sanitize_sql_like(query.to_s.strip)}%")
+  end
+
   # El dato manual manda: si hay pos_status observado, la UI lo muestra (ADR-004).
   def pos_observed?
     !pos_desconocido?

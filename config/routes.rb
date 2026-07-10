@@ -3,7 +3,8 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
 
   # Las tres vistas sobre `businesses` (SAD §4.2): tabla, ficha, kanban.
-  resources :businesses, only: [ :index, :show ] do
+  # new/create: negocios de origen manual (ADR-012) — Google no es el censo.
+  resources :businesses, only: [ :index, :show, :new, :create ] do
     collection do
       get :map # tercera vista: mapa (Google Maps JS, ADR-007/AUD-002)
     end

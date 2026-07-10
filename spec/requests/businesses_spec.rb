@@ -38,6 +38,33 @@ RSpec.describe "Businesses", type: :request do
       expect(response.body).not_to include("Con reseñas")
     end
 
+    it "busca por nombre sin importar mayúsculas ni tildes (unaccent)" do
+      create(:business, name: "Panadería San José", comuna: comuna, user_rating_count: 30)
+      create(:business, name: "Ferretería El Clavo", comuna: comuna, user_rating_count: 30)
+
+      get businesses_path(q: "panaderia san")
+
+      expect(response.body).to include("Panadería San José")
+      expect(response.body).not_to include("Ferretería El Clavo")
+    end
+
+    it "la búsqueda cruza ambos carriles (un lookup no es un ranking)" do
+      create(:business, :sin_reputacion, name: "Almacén Nuevo Sin Reseñas", comuna: comuna)
+
+      get businesses_path(q: "almacen nuevo") # carril por defecto = con reputación
+
+      expect(response.body).to include("Almacén Nuevo Sin Reseñas")
+    end
+
+    it "muestra la página actual destacada y con números separados" do
+      create_list(:business, 35, comuna: comuna, user_rating_count: 10)
+
+      get businesses_path(page: 2)
+
+      expect(response.body).to include('aria-current="page"')
+      expect(response.body).to include("bg-emerald-600") # página actual notoria
+    end
+
     it "filtra por presencia digital" do
       create(:business, :sin_presencia, name: "SinWeb", comuna: comuna, user_rating_count: 30)
       create(:business, :web_propia, name: "ConWeb", comuna: comuna, user_rating_count: 30)
@@ -170,6 +197,42 @@ RSpec.describe "Businesses", type: :request do
 
       expect(response).to redirect_to(business_path(business))
       expect(business.reload.pos_status).to eq("desconocido")
+    end
+  end
+
+  describe "POST /businesses (negocio manual — ADR-012)" do
+    it "crea el negocio clasificado y con evento de sistema en el historial" do
+      rubro = create(:rubro)
+
+      expect {
+        post businesses_path, params: { business: {
+          name: "Almacén Doña Rosa", comuna_id: comuna.id, rubro_ids: [ rubro.id.to_s ],
+          address: "Calle Real 45", phone: "+56 9 1234 5678",
+          website_uri: "https://instagram.com/donarosa"
+        } }
+      }.to change(Business, :count).by(1)
+
+      business = Business.order(:id).last
+      expect(response).to redirect_to(business_path(business))
+      expect(business.source).to eq("manual")
+      expect(business.place_id).to be_nil
+      expect(business.digital_presence).to eq("solo_redes") # clasificado al crear
+      expect(business.user_rating_count).to eq(0)           # carril "nuevos"
+      expect(business.rubros).to contain_exactly(rubro)
+      expect(business.contact_events.first.event_type).to eq("sistema")
+    end
+
+    it "sin website queda como sin_presencia" do
+      post businesses_path, params: { business: { name: "Kiosco Esquina", comuna_id: comuna.id } }
+
+      expect(Business.order(:id).last.digital_presence).to eq("sin_presencia")
+    end
+
+    it "re-renderiza el formulario si faltan datos obligatorios" do
+      post businesses_path, params: { business: { name: "", comuna_id: comuna.id } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(Business.count).to eq(0)
     end
   end
 

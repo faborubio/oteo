@@ -34,5 +34,5 @@
 </div>
 
 <% if @pagy.pages > 1 %>
-  <div class="mt-4 flex justify-center text-sm"><%== @pagy.series_nav %></div>
+  <div class="mt-4 flex justify-center"><%= pagy_styled_nav(@pagy) %></div>
 <% end %>
