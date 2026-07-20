@@ -12,7 +12,12 @@
   <img src="https://img.shields.io/badge/Rails-8.1-CC0000?logo=rubyonrails&logoColor=white" alt="Rails 8.1">
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 16">
   <img src="https://img.shields.io/badge/tests-RSpec-brightgreen" alt="RSpec">
+  <img src="https://img.shields.io/badge/estado-en%20producci%C3%B3n-success" alt="En producción">
 </p>
+
+> 🚀 **En producción desde julio 2026** — ~2.400 negocios de 12 comunas clasificados, sync
+> quincenal automático, backups diarios cifrados con restauración probada, operación dentro
+> del free tier de Google Places (deploy: Kamal 2 sobre una VM de GCE).
 
 ---
 
@@ -28,15 +33,16 @@ verificar si hay web y anotar en una planilla. La señal que convierte —*negoc
 y sin presencia digital*— existe en Places pero **no es filtrable desde Maps**. Oteo la extrae,
 la clasifica y la ordena por prioridad de venta.
 
-Es una **herramienta interna de un solo usuario**, construida con disciplina de producto: cada
-decisión de arquitectura está documentada como ADR en el [SAD](SAD-Oteo.md), con su contexto y
-trade-offs.
+Es una **herramienta interna** (la usa un equipo de 3 personas en terreno), construida con
+disciplina de producto: cada decisión de arquitectura está documentada como ADR en el
+[SAD](SAD-Oteo.md), con su contexto y trade-offs.
 
 ## Características
 
 - 🔎 **Sincronización desde Google Places API (New)** con un adapter que aísla al proveedor y
   minimiza costo: todos los campos se piden en el field mask del Text Search, nunca Place
-  Details por lugar (**~144 llamadas/mes** vs. ~2.900 del enfoque ingenuo).
+  Details por lugar (**~180 llamadas por sync completo** de 96 combinaciones vs. miles del
+  enfoque ingenuo — el sync quincenal usa ~36% del cupo gratuito).
 - 🏷️ **Clasificación de presencia digital en tres estados** — `sin_presencia` / `solo_redes` /
   `web_propia` — donde redes sociales y agregadores de delivery **no** cuentan como web propia
   (cada estado tiene su guion de venta).
@@ -46,8 +52,11 @@ trade-offs.
   La tabla se ordena por prioridad de prospección.
 - 🔁 **Pipeline idempotente**: re-sincronizar nunca duplica filas ni pisa el dato de terreno
   (notas, etapa del pipeline, POS observado).
-- 💰 **Costo cero de operación**: corre en un VPS propio dentro del free tier de Places; sin
-  Redis ni servicios pagados (Solid Queue/Cache/Cable sobre PostgreSQL).
+- 🔍 **Buscador insensible a tildes** (extensión `unaccent` de Postgres) y **alta manual** de
+  negocios que Google no lista — con clasificación automática al crear.
+- 💰 **Costo cero de operación**: free tier de Places + Solid Queue/Cache/Cable sobre
+  PostgreSQL (sin Redis ni servicios pagados). Backups diarios cifrados (age) fuera del VPS,
+  **con restauración probada** antes de confiar en ellos.
 
 ## Arquitectura
 
@@ -97,7 +106,7 @@ cd oteo
 bundle install                 # instala gems en vendor/bundle (ver nota abajo)
 bin/rails db:create db:migrate
 
-# Usuario único + taxonomías (6 comunas × 8 rubros = 48 combinaciones)
+# Usuario admin + taxonomías (12 comunas × 8 rubros = 96 combinaciones)
 OTEO_ADMIN_EMAIL=tu@correo.cl OTEO_ADMIN_PASSWORD=secreto bin/rails db:seed
 
 bin/dev                        # levanta web + watcher de Tailwind
@@ -134,7 +143,7 @@ pasa a facturación.
 ## Calidad
 
 ```bash
-bundle exec rspec                 # suite completa (138 ejemplos)
+bundle exec rspec                 # suite completa (145 ejemplos)
 COVERAGE=true bundle exec rspec   # con reporte de cobertura
 bundle exec rubocop               # estilo (omakase)
 bin/brakeman --no-pager           # análisis de seguridad estático
@@ -166,18 +175,21 @@ CLAUDE.md         contexto operativo para retomar el proyecto entre sesiones
 | Fase | Alcance | Estado |
 |---|---|---|
 | **0 — Cimientos** | Scaffold, toolkit, auth, modelo de datos, adapter Places, taxonomías, CI | ✅ Completa |
-| **1 — Pipeline de datos** | SyncJob idempotente + clasificadores + `sync_runs` | ✅ Completa (falta primer sync real) |
-| **2 — Las tres vistas** | Tabla filtrable, ficha + captura móvil de POS, kanban drag&drop, mapa (Google Maps JS) | ✅ Completa (deploy Kamal pendiente, AUD-011) |
-| **3 — Operación** | Sync programado quincenal, página de salud, expiración ToS, guiones de contacto | ✅ Completa (deploy real pendiente de VPS, AUD-011) |
-| **4 — Solo con tracción** | Verificación HTTP de webs, señal "solo efectivo", recordatorios, producto | ⬜ |
+| **1 — Pipeline de datos** | SyncJob idempotente + clasificadores + `sync_runs`, calibrado con 2 auditorías de datos reales | ✅ Completa |
+| **2 — Las tres vistas** | Tabla filtrable + buscador, ficha + captura móvil de POS, kanban drag&drop, mapa (Google Maps JS), alta manual | ✅ Completa |
+| **3 — Operación** | Sync programado quincenal, página de salud, expiración ToS, guiones de contacto, deploy + backups | ✅ **En producción** (2026-07-09) |
+| **4 — Solo con tracción** | Verificación HTTP de webs; el resto espera en [IDEAS.md](IDEAS.md) | ⬜ |
 
 ## Documentación
 
 - **[SAD-Oteo.md](SAD-Oteo.md)** — arquitectura completa, drivers, NFRs y todos los ADR con
   sus trade-offs. Es la fuente de verdad; el resto de docs deriva de aquí.
 - **[CLAUDE.md](CLAUDE.md)** — contexto operativo para retomar el proyecto en una sesión nueva.
-- **[docs/AUDIT.md](docs/AUDIT.md)** — deuda técnica explícita y gates legales pendientes.
+- **[docs/AUDIT.md](docs/AUDIT.md)** — deuda técnica explícita y gates legales, con estado.
 - **[docs/CASES.md](docs/CASES.md)** — memoria del clasificador de presencia digital.
+- **[docs/SECURITY.md](docs/SECURITY.md)** — modelo de amenaza, matriz de riesgo y postura
+  proporcional; **[docs/DEPLOY.md](docs/DEPLOY.md)** — runbook de producción validado.
+- **[IDEAS.md](IDEAS.md)** — parking lot: ideas diferidas que esperan tracción.
 
 ## Autor
 

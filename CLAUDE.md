@@ -115,7 +115,9 @@ reemplaza) · `comunas` · `rubros` (con `text_search_query` + `pos_target`) · 
   activa se cruzan ambos carriles), ✅ **alta manual de negocios** (`new/create`, ADR-012 por fin
   con UI: clasifica al crear, evento `sistema`, parte en carril "nuevos"), ✅ paginación estilizada
   (`pagy_styled_nav`: página actual notoria, targets táctiles). 145 specs verde.
-- **Fase 4 — Solo con tracción:** verificación HTTP, señal "solo efectivo", producto.
+- **Fase 4 — Solo con tracción:** verificación HTTP (AUD-008). Las ideas no comprometidas
+  esperan en [IDEAS.md](IDEAS.md) (parking lot, Método v1.5.0): señal "solo efectivo",
+  recordatorios, export CSV, atribución por vendedor, producto multi-tenant.
 
 ## Cierre de fase — Definition of Done (obligatorio)
 Ninguna fase se da por cerrada sin completar, en orden:
@@ -130,9 +132,24 @@ Ninguna fase se da por cerrada sin completar, en orden:
 6. **Verde** — `rspec` + `rubocop` + `brakeman` + `bundler-audit` limpios.
 7. **Commit + push.**
 
-## Reglas del repo (SAD §14)
+## Reglas del repo (SAD §14 + Método v1.5.0)
 1. El SAD cambia **solo por ADR nuevo o enmienda versionada** (§16), nunca ediciones silenciosas.
 2. Todo trade-off "aceptado" que implique trabajo futuro **debe** tener su `AUD-NNN` en AUDIT.md.
 3. `docs/CASES.md` es la memoria del clasificador: antes de tocar la lista de dominios de
    `config/oteo.yml`, documentar el caso ahí con su URI real.
 4. Prueba de que este archivo funciona: una sesión nueva retoma el proyecto leyendo solo esto.
+5. **Frontera AUD vs IDEAS:** si un ADR aceptó vivir sin algo → `AUD-NNN` (compromete). Si nadie
+   lo decidió → [IDEAS.md](IDEAS.md) (no compromete; espera tracción). Las ideas nuevas no se
+   discuten en caliente: van al parking lot.
+
+## Próxima sesión
+En orden de valor (🧑 = espera decisión/acción del autor):
+1. 🧑 **Crear la cuenta del socio** en producción — aún hay 1 solo usuario; los socios no pueden
+   entrar. `kamal app exec 'bin/rails runner "User.create!(email_address: ..., password: ...)"'`.
+2. 🧑 **Salir a terreno**: 2379 leads clasificados y **0 contact_events** — la herramienta ya no
+   es el cuello de botella. El feedback de los primeros contactos alimenta CASES.md y calibra
+   el lead_score (pesos en `config/oteo.yml`).
+3. 🧑 **AUD-014 — decidir hosting antes del ~2026-08-25** (crédito GCE expira ~02-sep): quedarse
+   pagando ~US$14/mes o migrar VPS (~30 min con Kamal: IP en deploy.yml + DuckDNS + Places key).
+4. **AUD-013 — SSH tras IAP** (baja prioridad; llave-only ya mitiga).
+5. **Fase 4 solo con tracción** — nada de IDEAS.md entra sin señal real.
