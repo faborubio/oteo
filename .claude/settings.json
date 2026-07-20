@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(curl -s -m 15 -o /dev/null -w \"prod /up → HTTP %{http_code}\\\\n\" https://oteo.duckdns.org/up)",
-      "Bash(ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o ConnectTimeout=15 faborubio@34.176.45.178 ' *)"
+      "Bash(ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o ConnectTimeout=15 faborubio@34.176.45.178 ' *)",
+      "Bash(git clone *)"
     ]
   }
 }
